@@ -7,14 +7,12 @@
 #include "imgui/imgui_impl_glfw.h"
 #include "imgui/imgui_impl_opengl3.h"
 
-#include "Core/Common.h"
 #include "Core/ShaderProgram.h"
-#include "RayTracer.h"
 #include "Camera.h"
-#include "glm/glm.hpp"
 #include "Tests/DebugTest.h"
 #include "SkyBox.h"
-#include <vector>
+#include "Model.h"
+#include "Geometry/Sphere.h"
 
 const int mWidth = 800, mHeight = 600;
 
@@ -22,11 +20,9 @@ void InitImGui(GLFWwindow* window, const char* glsl_version);
 
 void DestroyImGui();
 
-const std::string raymarcher_shader_path = "Shaders/raymarcher_scene1.shader";
 const std::string skybox_shader_path = "Shaders/skybox.shader";
+const std::string geometry_objects_shader_path = "Shaders/geometry_objects.glsl";
 
-int choosed_skybox = 0;
-std::vector<SkyBox*> skyboxes;
 float delta = 0.0f;
 Camera* camera_ptr;
 GLFWwindow* window = nullptr;
@@ -34,8 +30,8 @@ bool cursor_enabled = true;
 bool mouse_enabled = false;
 static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
 static void cursor_position_callback(GLFWwindow* window, double xpos, double ypos);
-int main() {
 
+int main() {
     // initialization context
     {
 		// initialise glfw
@@ -48,7 +44,7 @@ int main() {
 		glfwWindowHint(GLFW_SAMPLES, 4);
 
 		// Create a windowed mode window and its OpenGL context
-		window = glfwCreateWindow(mWidth, mHeight, "pbr-ibl", NULL, NULL);
+		window = glfwCreateWindow(mWidth, mHeight, "model viewer", NULL, NULL);
 		if (!window) {
 			glfwTerminate();
 			return -1;
@@ -66,69 +62,54 @@ int main() {
     {
         glfwSetKeyCallback(window, key_callback);
         glfwSetCursorPosCallback(window, cursor_position_callback);
-        InitImGui(window, "#version 330");
+        InitImGui(window, "#version 430");
+        
+        glCall(glEnable(GL_MULTISAMPLE));
+        glCall(glEnable(GL_CULL_FACE));
+        glCall(glCullFace(GL_BACK));
+	    //glCall(glEnable(GL_BLEND));
+	    //glCall(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
+	    glCall(glEnable(GL_DEPTH_TEST));
+        //glCall(glDepthFunc(GL_ALWAYS));
+        glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 
         camera_ptr = new Camera();
         Camera& camera = *camera_ptr;
-        float camera_speed = 3000.0f;
+        camera.SetAngles(0.0f, 0.0f);
+        camera.SetPosition(glm::vec3(1000.0f, 1000.0f, 1000.0f));
 
-        // scene parameters
-        float metallicness = 0.5f;
-        float roughness = 0.5f;
-        glm::vec3 albedo_color(1.0f);
-        glm::vec3 emmited_light(0.0f);
-        int light_bounces = 3;
+        // imgui passed params
+        float camera_speed = 5000.0f;
+        float reflectivity = 0.5f;
+        float shineDamper = 0.5;
+        float diffuseFactor = 0.5;
+        glm::vec3 light_color(1.0f);
+        glm::vec3 light_pos(-100.0f, 100.0f, -100.0f);
 
         DebugTest test;
-        test.AddFloatSlider("camera speed", &camera_speed, 0.0f, 10000.0f);   
-        test.AddColorPicker("sphere albedo", &albedo_color);
-        test.AddFloatSlider("matallicness", &metallicness);
-        test.AddFloatSlider("roughness", &roughness);
-        test.AddInteger("light bounces", &light_bounces, 1, 6);
+        test.AddFloatSlider("camera speed", &camera_speed, 0.0f, 10000.0f);
+        test.AddFloatSlider("model reflectivity", &reflectivity);
+        test.AddFloatSlider("model shineDamper", &shineDamper);
+        test.AddFloatSlider("model diffuseFactor", &diffuseFactor);
+        test.Add3FloatSlider("light color", &light_color, 0.0f, 1.0f);
+        test.Add3FloatsDrag("light position", &light_pos, -1000.0f, 1000.0f, 5.0f);
 
-        camera.SetAngles(0.0f, 0.0f);
-        RayTracer rt(raymarcher_shader_path);
-        rt.SetSkyBoxSlot(0);
+        float near_plane = 0.1f, far_plane = 4000.0f;
         float field_of_view = glm::radians(90.0f);
-        float near_plane = 0.1f, far_plane = 1000.0f;
         float aspect_ratio = (float)mWidth / (float)mHeight;
 
         glm::mat4 proj = glm::perspective(field_of_view, aspect_ratio, near_plane, far_plane);
-        glm::vec3 camera_pos = camera.getCameraPosition();
-        
-        rt.SetNearFarPlanes(near_plane, far_plane);
-        rt.SetProjectionMatrix(proj);
-        rt.SetCameraPos(camera_pos);
-        rt.SetHDR(false);
+        ShaderProgram sky_box_shader(skybox_shader_path);
 
-        glClearColor(0.25f, 1.0f, 0.25f, 1.0f);
+        SkyBox sky_box("mp_drakeq", "drakeq", &sky_box_shader);
+        sky_box_shader.FillUniform1f("u_near", near_plane);
+        sky_box_shader.FillUniform1f("u_far", far_plane);
 
-        ShaderProgram skybox_shader(skybox_shader_path);
-        skyboxes.push_back(new SkyBox("ame_ash", "ashcanyon", &skybox_shader));
-        skyboxes.push_back(new SkyBox("ame_emerald", "emeraldfog", &skybox_shader));
-        skyboxes.push_back(new SkyBox("ame_flatrock", "flatrock", &skybox_shader));
-        skyboxes.push_back(new SkyBox("ame_oasis", "oasisnight", &skybox_shader));
-        skyboxes.push_back(new SkyBox("darkskies", "darkskies", &skybox_shader));
-        skyboxes.push_back(new SkyBox("ely_darkcity", "darkcity", &skybox_shader));
-        /*skyboxes.push_back(new SkyBox("hw_entropic", "entropic", &skybox_shader));
-        skyboxes.push_back(new SkyBox("lmcity", "lmcity", &skybox_shader));
-        skyboxes.push_back(new SkyBox("mp_bromene", "bromene-bay", &skybox_shader));
-        skyboxes.push_back(new SkyBox("mp_classm", "classmplanet", &skybox_shader));
-        skyboxes.push_back(new SkyBox("mp_deception", "deception_pass", &skybox_shader));
-        skyboxes.push_back(new SkyBox("mp_deviltooth", "devils-tooth", &skybox_shader));
-        skyboxes.push_back(new SkyBox("mp_drakeq", "drakeq", &skybox_shader));
-        skyboxes.push_back(new SkyBox("mp_midnight", "midnight-silence", &skybox_shader));
-        skyboxes.push_back(new SkyBox("mp_po", "po", &skybox_shader));
-        skyboxes.push_back(new SkyBox("mp_totality", "totality", &skybox_shader));
-        skyboxes.push_back(new SkyBox("mp_us", "urbansp", &skybox_shader));*/
-        skyboxes[choosed_skybox]->Bind(0);
-        skyboxes[choosed_skybox]->BindIrradiance(1);
-        rt.SetSkyBoxSlot(0);
-        rt.SetIrradianceMapSlot(0);
+        ShaderProgram geometry_object_shader(geometry_objects_shader_path);
+        geometry_object_shader.FillUniformMat4f("u_proj", proj);
+        Sphere sphere(&geometry_object_shader, glm::vec3(0.0f), 10.f);
+        Sphere light(&geometry_object_shader, light_pos, 1.0f);
 
-        skybox_shader.FillUniform1f("u_near", near_plane);
-        skybox_shader.FillUniform1f("u_far", far_plane);
-        
         // Rendering Loop
         double time1 = 0.0f;
         double time2 = 0.0f;
@@ -137,21 +118,32 @@ int main() {
             time2 = ImGui::GetTime();
             delta = (float)(time2 - time1);
             camera.SetCameraSpeed(camera_speed);
-
             // Background Fill Color
+            //glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+            // drawing
             glm::mat4 view_matrix = camera.getViewMatrix();
+            glm::vec3 camera_pos = camera.getCameraPosition();
+            geometry_object_shader.FillUniformMat4f("u_view", view_matrix);
+            geometry_object_shader.FillUniformVec3("u_cameraPos", camera_pos);
+            sphere.SetLightColor(light_color);
+            sphere.SetLightPosition(light_pos);
+            sphere.SetPosition(glm::vec3(0.0f));
+            sphere.Render();
 
-            rt.SetViewMatrix(view_matrix);
-            rt.SetMetallic(metallicness);
-            rt.SetRoughness(roughness);
-            rt.SetEmmitedLight(emmited_light);
-            rt.SetReflectionBounces(light_bounces);
-            rt.SetSpheresAlbedo(albedo_color);
-            rt.SetCameraPos(camera.getCameraPosition());
+            light.SetLightColor(light_color);
+            light.SetLightPosition(light_pos);
+            light.SetPosition(light_pos);
+            light.Render();
 
-            rt.Render();
+            //glDepthFunc(GL_LEQUAL);
+            //sky_box.Draw(view_matrix, proj);
+            //glDepthFunc(GL_LESS);
+
             // imgui stuff
+            glm::vec3 pos = camera.getCameraPosition();
+            test.AddText("camera pos", std::to_string(pos.x) + " " + std::to_string(pos.y) + " " + std::to_string(pos.z));
             test.Display();
             test.Render();
 
@@ -190,18 +182,6 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
             if (cursor_enabled) glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
             else glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
             cursor_enabled = !cursor_enabled;
-        }
-        if (key == GLFW_KEY_M) {
-            skyboxes[choosed_skybox]->Unbind();
-            choosed_skybox = (choosed_skybox + 1) % skyboxes.size();
-            skyboxes[choosed_skybox]->Bind(0);
-            skyboxes[choosed_skybox]->BindIrradiance(1);
-        }
-        if (key == GLFW_KEY_N) {
-            skyboxes[choosed_skybox]->Unbind();
-            choosed_skybox = (choosed_skybox + skyboxes.size() - 1) % skyboxes.size();
-            skyboxes[choosed_skybox]->Bind(0);
-            skyboxes[choosed_skybox]->BindIrradiance(1);
         }
     }
     if (action == GLFW_PRESS || action == GLFW_REPEAT) {

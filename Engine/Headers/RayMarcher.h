@@ -4,9 +4,7 @@
 #include "Core/VertexArray.h"
 #include "SkyBox.h"
 
-class SkyBox;
-
-class RayTracer {
+class RayMarcher {
 private:
 	ShaderProgram* shader;
 	VertexArray* vao;
@@ -24,8 +22,8 @@ private:
 	int skybox_slot = -1;
 	int irradiance_map_slot = -1;
 public:
-	RayTracer(std::string shader_path = "resources/shaders/RayTracing/raymarcher_scene1.shader");
-	~RayTracer();
+	RayMarcher(std::string shader_path = "resources/shaders/RayTracing/raymarcher_scene1.shader");
+	~RayMarcher();
 
 	void SetCameraPos(glm::vec3 pos);
 	void SetProjectionMatrix(glm::mat4 projection);

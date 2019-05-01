@@ -1,4 +1,4 @@
-#include "Plane.h"
+#include "Geometry/Plane.h"
 
 Plane::Plane(glm::vec4 equation, glm::vec3 center, float size, int tiles_per_side, std::string shader_path, glm::vec3 color)
 	: equation(equation), center(center), size(size), tiles_per_side(tiles_per_side), shader_path(shader_path), color(color) {
@@ -12,7 +12,7 @@ Plane::Plane(glm::vec4 equation, glm::vec3 center, float size, int tiles_per_sid
 	unsigned int indexes[]{ 0, 1, 2, 3 };
 	float p = size / 2.0f;
 	for (int i = 0; i < 4; ++i) {
-		float theta = (0.25 + 0.5 * i) * glm::pi<float>();
+		float theta = (0.25f + 0.5f * i) * glm::pi<float>();
 		float xp, yp, zp;
 		if (equation[0] != 0) {
 			yp = p * cos(theta) + center.y;

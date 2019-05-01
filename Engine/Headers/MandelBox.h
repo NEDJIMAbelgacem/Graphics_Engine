@@ -4,9 +4,6 @@
 #include "Core/VertexArray.h"
 #include "ShaderComponents/Shaded.h"
 
-//class ShaderProgram;
-//class VertexArray;
-
 class MandelBox : public Shaded {
 private:
 	VertexArray* vao;

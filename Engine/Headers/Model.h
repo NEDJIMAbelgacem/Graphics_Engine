@@ -8,13 +8,14 @@
 #include "Batch.h"
 #include "ShaderComponents/DirectionalLight.h"
 #include "ShaderComponents/SurfaceParameters.h"
+#include "AbstractClasses/Renderable.h"
 
 class ModelComponent;
 class VertexArray;
 class Texture;
 class Batch;
 
-class Model : public DirectionalLight, public SurfaceParameters {
+class Model : public Renderable, public DirectionalLight, public SurfaceParameters {
 private:
 	std::string model_path;
 	std::vector<ModelComponent*> meshes;

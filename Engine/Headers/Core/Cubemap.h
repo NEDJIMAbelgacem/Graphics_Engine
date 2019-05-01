@@ -1,6 +1,10 @@
 #pragma once
-#include "Renderer.h"
-#include "ShaderProgram.h"
+#include "Core/Common.h"
+#include "Core/ShaderProgram.h"
+#include "Core/VertexArray.h"
+#include "Core/VertexBuffer.h"
+#include "stb_image.h"
+
 #define equirectangular2cubemap_shader_path "Resources/shaders/core/equirectangular2cubemap.shader"
 #define irradiance_shader_path "Resources/shaders/core/irradiance.shader"
 

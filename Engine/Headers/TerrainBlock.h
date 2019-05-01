@@ -3,6 +3,7 @@
 #include "Core/ShaderProgram.h"
 #include "Core/VertexArray.h"
 #include "Core/VertexBuffer.h" 
+#include "Core/IndexBuffer.h" 
 
 class TerrainBlock {
 private:

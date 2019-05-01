@@ -12,7 +12,7 @@
 #include "glm/glm.hpp"
 #include "Tests/DebugTest.h"
 #include "SkyBox.h"
-//#include "Model.h"
+#include "Model.h"
 
 const int mWidth = 800, mHeight = 600;
 

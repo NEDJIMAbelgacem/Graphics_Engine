@@ -5,6 +5,8 @@
 #include <string>
 #include "ShaderComponents/SurfaceParameters.h"
 #include "ShaderComponents/PointLight.h"
+#include "Core/IndexBuffer.h"
+#include "Core/Texture.h"
 
 class TerrainBlock;
 class HeightMap;
@@ -52,7 +54,5 @@ public:
 	float GetTileSize();
 	int GetInstancesCount();
 
-	//void SetSurfaceParameters(float reflectivity, float shineDamper, float diffuseFactor);
-	//void SetLightParameters(glm::vec3 pos, glm::vec3 color);
 	void SetCameraPosition(glm::vec3 pos);
 };

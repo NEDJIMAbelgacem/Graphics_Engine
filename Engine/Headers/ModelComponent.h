@@ -1,5 +1,5 @@
 #pragma once
-#include "Renderer.h"
+#include "Core/Common.h"
 #include <map>
 #include <string>
 #include <assimp/Importer.hpp>
@@ -8,6 +8,7 @@
 #include "Core/Texture.h"
 #include "Core/ShaderProgram.h"
 #include "Core/VertexArray.h"
+#include "Core/IndexBuffer.h"
 #include "Core/Common.h"
 #include "Batch.h"
 

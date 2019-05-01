@@ -1,5 +1,8 @@
 #pragma once
-#include "Renderer.h"
+#include "Core/Common.h"
+#include "Core/VertexArray.h"
+#include "Core/VertexBuffer.h"
+#include "Core/ShaderProgram.h"
 
 class Multibrot {
 private:

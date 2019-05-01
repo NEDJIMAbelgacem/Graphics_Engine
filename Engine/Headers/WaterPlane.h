@@ -1,6 +1,8 @@
 #pragma once
 #include "Core/Common.h"
 #include "Core/FrameBuffer.h"
+#include "Core/Texture.h"
+#include "Core/IndexBuffer.h"
 
 #define DEFAULT_WATERSPEED 0.0001
 

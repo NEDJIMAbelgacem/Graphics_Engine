@@ -1,5 +1,5 @@
 #pragma once
-#include "Renderer.h"
+#include "Core/Common.h"
 #include "Model.h"
 #include <map>
 #include "ShaderComponents/DirectionalLight.h"

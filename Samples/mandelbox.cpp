@@ -7,7 +7,7 @@
 #include "imgui/imgui_impl_glfw.h"
 #include "imgui/imgui_impl_opengl3.h"
 
-#include "Renderer.h"
+#include "Core/Common.h"
 #include "Core/ShaderProgram.h"
 #include "MandelBox.h"
 #include "Camera.h"

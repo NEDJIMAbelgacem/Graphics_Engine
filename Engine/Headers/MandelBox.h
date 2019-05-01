@@ -1,5 +1,5 @@
 #pragma once
-#include "Renderer.h"
+#include "Core/Common.h"
 #include "Core/ShaderProgram.h"
 #include "Core/VertexArray.h"
 #include "ShaderComponents/Shaded.h"

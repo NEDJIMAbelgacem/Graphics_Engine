@@ -1,5 +1,7 @@
 #pragma once
-#include "Renderer.h"
+#include "Core/Common.h"
+#include "Core/VertexArray.h"
+#include "Core/ShaderProgram.h"
 
 class FrameBuffer {
 private:

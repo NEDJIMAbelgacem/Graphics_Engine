@@ -88,13 +88,14 @@ int main() {
         camera.SetPosition(glm::vec3(0.0f, 10.0f, 10.0f));
 
         // imgui passed params
-        float camera_speed = 3000.0f;
+        float camera_speed = 100.0f;
         float reflectivity = 0.5f;
         float shineDamper = 0.5;
         float diffuseFactor = 0.5;
         glm::vec3 light_color(1.0f);
         glm::vec3 light_dir(0.0f, 1.0f, 0.0f);
         glm::vec2 model_pos(0.0f);
+        float model_rotation = 0.0f;
 
         DebugTest test;
         test.AddFloatSlider("camera speed", &camera_speed, 0.0f, 10000.0f);
@@ -104,6 +105,7 @@ int main() {
         test.Add3FloatSlider("light color", &light_color, 0.0f, 1.0f);
         test.Add3FloatSlider("light direction", &light_dir, -1.0f, 1.0f);
         test.Add2FloatsDrag("model position", &model_pos, -500.0f, 500.0f, 1.0f);
+        test.Add1FloatsDrag("model rotation", &model_rotation, -180.0f, 180.0f, 1.0f);
 
         float near_plane = 0.1f, far_plane = 8000.0f;
         float field_of_view = glm::radians(90.0f);
@@ -125,7 +127,8 @@ int main() {
         int vertices_per_tile = 10;
         int tiles_per_side = 20;
         Terrain terrain(terrain_textures, &terrain_shader, terrain_pos, terrain_size, tiles_per_side, vertices_per_tile);
-        terrain.SetLightParameters(glm::vec3(0, 10000.0f, 0.0f), glm::vec3(1.0f));
+        terrain.SetLightColor(glm::vec3(1.0f));
+        terrain.SetLightPosition(glm::vec3(0, 10000.0f, 0.0f));
 
         ShaderProgram model_shader = ShaderProgram(model_shader_path);
         Model model_object(model_path, &model_shader);
@@ -154,16 +157,19 @@ int main() {
             terrain_shader.FillUniformMat4f("u_view", view_matrix);
             terrain.Render();
 
+            glm::mat4 rotation_m = glm::rotate(glm::identity<glm::mat4>(), glm::radians(model_rotation), glm::vec3(1.0f, 0.0f, 0.0f));
             float model_x = model_pos.x, model_z = model_pos.y;
             float model_y = terrain.GetHeight(model_x, model_z);
             glm::mat4 object_model_matrix = glm::identity<glm::mat4>();
             object_model_matrix = glm::scale(object_model_matrix, glm::vec3(1.0f));
-            object_model_matrix = glm::rotate(object_model_matrix, -PI / 2.0f, glm::vec3(1.0f, 0.0f, 0.0f));
+            //object_model_matrix = rotation_m * object_model_matrix;
             object_model_matrix = glm::translate(object_model_matrix, glm::vec3(model_x, model_y, model_z));
+            //object_model_matrix = glm::inverse(rotation_m) * object_model_matrix;
             model_object.SetModelMatrix(object_model_matrix);
 
             model_object.SetSurfaceParameters(reflectivity, shineDamper, diffuseFactor);
-            model_object.SetLightParameters(light_dir, light_color);
+            model_object.SetLightColor(light_color);
+            model_object.SetLightDirection(light_dir);
             model_shader.FillUniformMat4f("u_view", view_matrix);
             model_object.Render();
 

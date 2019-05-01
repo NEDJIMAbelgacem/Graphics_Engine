@@ -2,13 +2,13 @@
 #include "Renderer.h"
 #include "Core/ShaderProgram.h"
 #include "Core/VertexArray.h"
+#include "ShaderComponents/Shaded.h"
 
 //class ShaderProgram;
 //class VertexArray;
 
-class MandelBox {
+class MandelBox : public Shaded {
 private:
-	ShaderProgram* shader;
 	VertexArray* vao;
 
 	glm::mat4 projection_matrix;

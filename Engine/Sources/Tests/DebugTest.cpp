@@ -50,6 +50,7 @@ void DebugTest::Display() {
         float max = std::get<2>(p.second);
 		ImGui::SliderFloat(p.first.c_str(), ptr, min, max);
 	}
+
 	for (std::pair<std::string, std::tuple<glm::vec3*, float, float>> p : float_3sliders) {
         glm::vec3* ptr = std::get<0>(p.second);
         float min = std::get<1>(p.second);
@@ -82,6 +83,13 @@ void DebugTest::Display() {
         float& max = std::get<2>(t.second);
         float& speed = std::get<3>(t.second);
         ImGui::DragFloat2(t.first.c_str(), &ptr->x, speed, min, max);
+    }
+    for (auto t : drags_1floats) {
+        float* ptr = std::get<0>(t.second);
+        float& min = std::get<1>(t.second);
+        float& max = std::get<2>(t.second);
+        float& speed = std::get<3>(t.second);
+        ImGui::DragFloat(t.first.c_str(), ptr, speed, min, max);
     }
 	ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
 	bool clicked = ImGui::Button("save scrrenshot");
@@ -119,6 +127,10 @@ void DebugTest::Add3FloatsDrag(std::string title, glm::vec3* ptr, float min, flo
 
 void DebugTest::Add2FloatsDrag(std::string title, glm::vec2* ptr, float min, float max, float speed) {
     this->drags_2floats[title] = std::make_tuple(ptr, min, max, speed);
+}
+
+void DebugTest::Add1FloatsDrag(std::string title, float* ptr, float min, float max, float speed) {
+    this->drags_1floats[title] = std::make_tuple(ptr, min, max, speed);
 }
 
 void DebugTest::Render() {

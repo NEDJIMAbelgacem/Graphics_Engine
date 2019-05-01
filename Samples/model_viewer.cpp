@@ -13,7 +13,6 @@
 #include "Tests/DebugTest.h"
 #include "SkyBox.h"
 //#include "Model.h"
-#include "Mesh.h"
 
 const int mWidth = 800, mHeight = 600;
 
@@ -127,7 +126,8 @@ int main() {
             proj = glm::perspective(field_of_view, aspect_ratio, near_plane, far_plane);
             glm::mat4 view_matrix = camera.getViewMatrix();
             model_object.SetSurfaceParameters(reflectivity, shineDamper, diffuseFactor);
-            model_object.SetLightParameters(light_dir, light_color);
+            model_object.SetLightColor(light_color);
+            model_object.SetLightDirection(light_dir);
             model_shader.FillUniformMat4f("u_view", view_matrix);
 
             model_object.Render();

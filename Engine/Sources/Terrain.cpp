@@ -1,7 +1,6 @@
 #include "Terrain.h"
 
-Terrain::Terrain(std::vector<std::string> textures_paths,  ShaderProgram* shader, glm::vec3 center_position, glm::vec3 size, int tiles_per_side, int vertices_per_tile, int seed)
-	: textures_paths(textures_paths), shader_path(shader_path) {
+Terrain::Terrain(std::vector<std::string> textures_paths,  ShaderProgram* shader, glm::vec3 center_position, glm::vec3 size, int tiles_per_side, int vertices_per_tile, int seed) {
     this->size = size;
     this->shader = shader;
     this->tiles_per_side = tiles_per_side;
@@ -151,7 +150,7 @@ int Terrain::GetInstancesCount() {
 	int vertices_per_tile = this->GetVerticesPerTile();
 	return vertices_per_tile * vertices_per_tile * tiles_per_side * tiles_per_side;
 }
-
+/*
 void Terrain::SetSurfaceParameters(float reflectivity, float shineDamper, float diffuseFactor) {
 	this->reflectivity = reflectivity;
 	this->shineDamper = shineDamper;
@@ -167,7 +166,7 @@ void Terrain::SetLightParameters(glm::vec3 pos, glm::vec3 color) {
 	shader->FillUniformVec3("u_lightPos", pos);
 	shader->FillUniformVec3("u_lightColor", color);
 }
-
+*/
 void Terrain::SetCameraPosition(glm::vec3 pos) {
 	cameraPos = pos;
 	shader->FillUniformVec3("u_cameraPos", pos);

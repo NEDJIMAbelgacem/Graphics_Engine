@@ -43,7 +43,8 @@ file(GLOB VENDORS_SOURCES Engine/Vendor/glad/src/glad.c
 file(GLOB PROJECT_HEADERS Engine/Headers/*.hpp)
 file(GLOB PROJECT_SOURCES Engine/Sources/*.cpp
                           Engine/Sources/Tests/*.cpp
-                          Engine/Sources/Core/*.cpp)
+                          Engine/Sources/Core/*.cpp
+                          Engine/Sources/ShaderComponents/*.cpp)
 file(GLOB PROJECT_SHADERS Engine/Shaders/*.shader)
 file(GLOB PROJECT_CONFIGS CMakeLists.txt
                           Readme.md

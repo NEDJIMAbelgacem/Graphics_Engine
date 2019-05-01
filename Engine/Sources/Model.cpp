@@ -9,7 +9,10 @@ bool operator!=(glm::mat4& m1, glm::mat4& m2) {
 }
 
 Model::Model(std::string model_path, ShaderProgram* shader_ptr) {
-	shader = shader_ptr;
+	this->shader = shader_ptr;
+    this->SetLightColor(glm::vec3(1.0f));
+    this->SetLightDirection(glm::vec3(0.0f, 1.0f, 0.0f));
+    this->SetSurfaceParameters(0.0f, 1.0f, 1.0f);
 
 	Assimp::Importer importer;
 	const aiScene *scene = importer.ReadFile(model_path, aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_GenSmoothNormals);
@@ -48,42 +51,10 @@ void Model::RenderBatch(Batch& batch) {
 }
 
 void Model::SetModelMatrix(glm::mat4 matrix) {
-	//if (this->model_matrix != matrix) {
+	if (this->model_matrix != matrix) {
 		model_matrix = matrix;
 		shader->FillUniformMat4f("u_model", matrix);
-	//}
-}
-
-void Model::SetSurfaceParameters(float reflectivity, float shineDamper, float diffuseFactor) {
-	if (this->reflectivity != reflectivity) {
-		this->reflectivity = reflectivity;
-		shader->FillUniform1f("u_material.reflectivity", reflectivity);
 	}
-	
-	if (this->shineDamper != shineDamper) {
-		this->shineDamper = shineDamper;
-		shader->FillUniform1f("u_material.shineDamper", shineDamper);
-	}
-
-	if (this->diffuseFactor != diffuseFactor) {
-		this->diffuseFactor = diffuseFactor;
-		shader->FillUniform1f("u_material.diffuseFactor", diffuseFactor);
-	}
-}
-
-void Model::SetLightParameters(glm::vec3 light_dir, glm::vec3 light_color) {
-    if (this->light_dir != light_dir) {
-        this->light_dir = light_dir;
-        shader->FillUniformVec3("u_lightDir", light_dir);
-    }
-    if (this->light_color != light_color) {
-        this->light_color = light_color;
-        shader->FillUniformVec3("u_lightColor", light_color);
-    }
-}
-
-ShaderProgram* Model::GetShader() {
-	return shader;
 }
 
 ModelComponent* Model::GetComponent(int i) {

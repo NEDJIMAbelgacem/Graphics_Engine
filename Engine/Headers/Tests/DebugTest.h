@@ -13,6 +13,7 @@ private:
 	std::map<std::string, glm::vec3*> color_pickers;
     std::map<std::string, std::tuple<glm::vec3*, float, float, float>> drags_3floats;
     std::map<std::string, std::tuple<glm::vec2*, float, float, float>> drags_2floats;
+    std::map<std::string, std::tuple<float*, float, float, float>> drags_1floats;
 public:
 	DebugTest();
 	void AddText(std::string title, std::string value);
@@ -22,6 +23,7 @@ public:
 	void AddColorPicker(std::string title, glm::vec3* c);
     void Add3FloatsDrag(std::string title, glm::vec3* ptr, float min = 0.0f, float max = 1.0f, float speed = 0.01);
     void Add2FloatsDrag(std::string title, glm::vec2* ptr, float min = 0.0f, float max = 1.0f, float speed = 0.01);
+    void Add1FloatsDrag(std::string title, float* ptr, float min = 0.0f, float max = 1.0f, float speed = 0.01);
 	void Display();
 	void Render();
 	~DebugTest();

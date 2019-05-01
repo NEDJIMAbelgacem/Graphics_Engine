@@ -65,12 +65,15 @@ void main() {
 	vec3 toCamera = normalize(u_cameraPos - v_fragPos);
 	vec3 norm = normalize(v_normal);
 	vec3 reflVect = reflect(-lightDir, norm);
+
+    vec4 material_texel = texture(u_material.materialTexture, v_texCoords);
+    if (material_texel.a < 1.0) discard;
 	// ambient light
-	vec4 ambientL = 0.1 * texture(u_material.materialTexture, v_texCoords);
+	vec4 ambientL = 0.1 * material_texel;
 	// diffuse light
-	vec4 diffuseL = max(dot(norm, lightDir), 0.0f) * texture(u_material.materialTexture, v_texCoords);
+	vec4 diffuseL = max(dot(norm, lightDir), 0.0f) * material_texel;
 	// specular light
-	vec4 specularL = pow(max(dot(reflVect, toCamera), 0.0f), 1) * texture(u_material.materialTexture, v_texCoords);//texture(u_material.specularMaps[0], v_texCoords);
+	vec4 specularL = pow(max(dot(reflVect, toCamera), 0.0f), 1) * material_texel;//texture(u_material.specularMaps[0], v_texCoords);
 	
 	fragColor = normalize(((ambientL /*+ specularL + specularL*/) * vec4(u_lightColor, 1.0f)));
     //fragColor = vec4(vec3(1.0f);

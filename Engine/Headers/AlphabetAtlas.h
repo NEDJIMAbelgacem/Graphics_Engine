@@ -2,21 +2,19 @@
 #include "Renderer.h"
 #include "Model.h"
 #include <map>
+#include "ShaderComponents/DirectionalLight.h"
+#include "ShaderComponents/SurfaceParameters.h"
 
 class Model;
 
-class AlphabetAtlas {
+class AlphabetAtlas : public DirectionalLight, public SurfaceParameters {
 private:
-	std::string shader_path;
-	std::string models_path;
-	ShaderProgram* shader;
 	std::map<char, Model*> chars_models;
 public:
-	AlphabetAtlas(std::string models_path, std::string shader);
-	void SetSurfaceParameters(float reflectivity, float shineDamper, float diffuseFactor);
-	void SetLightParameters(glm::vec3 pos, glm::vec3 color);
+	AlphabetAtlas(std::string models_path, ShaderProgram* shader);
+    ~AlphabetAtlas();
+
 	void SetCameraPosition(glm::vec3 pos);
 
-	void Draw(Renderer& r, VertexArray& vao, glm::vec3 pos, std::string str);
-	~AlphabetAtlas();
+	void Render(glm::vec3 pos, std::string str, float spacing, glm::vec3 spacing_direction = glm::vec3(1.0f, 0.0f, 0.0f));
 };

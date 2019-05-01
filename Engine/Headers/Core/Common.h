@@ -11,3 +11,5 @@
 void GLClearError();
 
 bool GLPrintErrors(std::string function_name, std::string file, int line);
+
+#define DEFAULT_LIGHT_POS glm::vec3(0.0f, 1000.0f, 0.0f)

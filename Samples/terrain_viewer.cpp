@@ -13,6 +13,7 @@
 #include "Tests/DebugTest.h"
 #include "SkyBox.h"
 #include "Terrain.h"
+#include "AlphabetAtlas.h"
 
 const int mWidth = 800, mHeight = 600;
 
@@ -23,9 +24,11 @@ void DestroyImGui();
 const std::string skybox_shader_path = "Shaders/skybox.shader";
 const std::string terrain_shader_path = "Shaders/terrain.shader";
 const std::string model_shader_path = "Shaders/model.shader";
-const std::string model_path = "Resources/tree/tree1.3ds";
+const std::string model_path = "Resources/LowPolyTree/lowpolytree.obj";
 const std::string terrain_texture1_path = "Resources/textures/red_dirt_mud_01_diff_1k.jpg";
 const std::string terrain_texture2_path = "Resources/textures/grassy2.png";
+const std::string alphabet_atlas_models_folder_path = "Resources/alphabet/Letters/";
+const std::string alphabets_shader_path = "Shaders/alphabet.glsl";
 
 float delta = 0.0f;
 Camera* camera_ptr;
@@ -122,6 +125,7 @@ int main() {
         terrain_textures.push_back(terrain_texture2_path);
         terrain_textures.push_back(terrain_texture1_path);
         ShaderProgram terrain_shader(terrain_shader_path);
+        terrain_shader.FillUniformMat4f("u_proj", proj);
         glm::vec3 terrain_size(1000.0f, 100.0f, 1000.0f);
         glm::vec3 terrain_pos(0.0f);
         int vertices_per_tile = 10;
@@ -134,6 +138,10 @@ int main() {
         Model model_object(model_path, &model_shader);
         model_shader.FillUniformMat4f("u_proj", proj);
 
+        ShaderProgram alphabet_shader(alphabets_shader_path);
+        alphabet_shader.FillUniformMat4f("u_proj", proj);
+        AlphabetAtlas alphabet_atlas(alphabet_atlas_models_folder_path, &alphabet_shader);
+        
         // Rendering Loop
         double time1 = 0.0f;
         double time2 = 0.0f;
@@ -153,9 +161,6 @@ int main() {
             //glDepthFunc(GL_LEQUAL);
             //sky_box.Draw(view_matrix, proj);
             //glDepthFunc(GL_LESS);
-            terrain_shader.FillUniformMat4f("u_proj", proj);
-            terrain_shader.FillUniformMat4f("u_view", view_matrix);
-            terrain.Render();
 
             glm::mat4 rotation_m = glm::rotate(glm::identity<glm::mat4>(), glm::radians(model_rotation), glm::vec3(1.0f, 0.0f, 0.0f));
             float model_x = model_pos.x, model_z = model_pos.y;
@@ -172,6 +177,14 @@ int main() {
             model_object.SetLightDirection(light_dir);
             model_shader.FillUniformMat4f("u_view", view_matrix);
             model_object.Render();
+
+            terrain_shader.FillUniformMat4f("u_view", view_matrix);
+            terrain.Render();
+
+            alphabet_shader.FillUniformMat4f("u_view", view_matrix);
+            alphabet_atlas.SetCameraPosition(camera.getCameraPosition());
+            alphabet_atlas.SetSurfaceParameters(reflectivity, shineDamper, diffuseFactor);
+            alphabet_atlas.Render(glm::vec3(-100.0f, 50.0f, -100.0f), "ABC", 100.0f);
 
             // imgui stuff
             glm::vec3 pos = camera.getCameraPosition();

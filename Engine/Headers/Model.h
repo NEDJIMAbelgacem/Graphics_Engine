@@ -18,7 +18,7 @@ class Model : public DirectionalLight, public SurfaceParameters {
 private:
 	std::string model_path;
 	std::vector<ModelComponent*> meshes;
-	glm::mat4 model_matrix = glm::mat4(1.0f);
+	glm::mat4 model_matrix = glm::mat4(0.0f);
 public:
 	Model(std::string model_path, ShaderProgram* shader_prg);
     ~Model();

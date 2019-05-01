@@ -6,11 +6,11 @@ ModelComponent::ModelComponent(std::string directory, const aiMesh* mesh, const 
     normals_count = mesh->HasNormals() ? mesh->mNumVertices : 0;
     tangent_count = mesh->HasTangentsAndBitangents() ? mesh->mNumVertices : 0;
     indexes_count = 3 * mesh->mNumFaces;
-    std::cout << "vertices_count " << vertices_count << std::endl;
+    /*std::cout << "vertices_count " << vertices_count << std::endl;
     std::cout << "uv_components_count " << uv_components_count << std::endl;
     std::cout << "normals_count " << normals_count << std::endl;
     std::cout << "tangent_count " << tangent_count << std::endl;
-    std::cout << "indexes_count " << indexes_count << std::endl;
+    std::cout << "indexes_count " << indexes_count << std::endl;*/
 
     if (vertices_count == 0) {
         std::cout << "[Warning] model component has no vertices" << std::endl;
@@ -26,7 +26,7 @@ ModelComponent::ModelComponent(std::string directory, const aiMesh* mesh, const 
 	float* tangent = nullptr;
 	float* bitangent = nullptr;
 	unsigned int* indexes = nullptr;
-
+    
     // vertices
     vertices = new float[3 * vertices_count];
 	for (unsigned int i = 0; i < vertices_count; ++i) {

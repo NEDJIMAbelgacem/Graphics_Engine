@@ -1,11 +1,12 @@
 #include "AlphabetAtlas.h"
 
-#define EntriesFile "chars_models.txt"
+#define EntriesFile "Resources/alphabet/chars_models.txt"
 
-AlphabetAtlas::AlphabetAtlas(std::string models_path, std::string shader_path)
-	: shader_path(shader_path), models_path(models_path) {
-
-	shader = new ShaderProgram(shader_path);
+AlphabetAtlas::AlphabetAtlas(std::string models_path, ShaderProgram* shader) {
+    this->shader = shader;
+    this->SetLightColor(glm::vec3(1.0f));
+    this->SetLightDirection(glm::vec3(0.0f, -1.0f, -1.0f));
+    this->SetSurfaceParameters(0.0f, 1.0f, 1.0f);
 
 	std::ifstream input(EntriesFile, std::ifstream::in);
 	int lines_count;
@@ -17,27 +18,16 @@ AlphabetAtlas::AlphabetAtlas(std::string models_path, std::string shader_path)
 	}
 }
 
-void AlphabetAtlas::Draw(Renderer& r, VertexArray& vao, glm::vec3 pos, std::string str) {
+void AlphabetAtlas::Render(glm::vec3 pos, std::string str, float spacing, glm::vec3 spacing_direction) {
 	for (char c : str) {
 		if (chars_models.find(c) != chars_models.end()) {
 			Model* m = chars_models[c];
-			m->SetModelMatrix(glm::translate(glm::mat4(100.0f), pos));
-			//r.DrawModel(*m, vao);
-		}
-		pos.x += 50;
+            //shader->FillUniformMat4f("u_model", glm::translate(glm::identity<glm::mat4>(), pos));
+			m->SetModelMatrix(glm::translate(glm::identity<glm::mat4>(), pos));
+            m->Render();
+		} else std::cout << "character \"" << c << "\" not found" << std::endl;
+		pos.x += spacing;
 	}
-}
-
-
-void AlphabetAtlas::SetSurfaceParameters(float reflectivity, float shineDamper, float diffuseFactor) {
-	shader->FillUniform1f("u_material.reflectivity", reflectivity);
-	shader->FillUniform1f("u_material.shineDamper", shineDamper);
-	shader->FillUniform1f("u_material.diffuseFactor", diffuseFactor);
-}
-
-void AlphabetAtlas::SetLightParameters(glm::vec3 pos, glm::vec3 color) {
-	shader->FillUniformVec3("u_lightPos", pos);
-	shader->FillUniformVec3("u_lightColor", color);
 }
 
 void AlphabetAtlas::SetCameraPosition(glm::vec3 pos) {
@@ -45,7 +35,5 @@ void AlphabetAtlas::SetCameraPosition(glm::vec3 pos) {
 }
 
 AlphabetAtlas::~AlphabetAtlas() {
-	for (std::pair<char, Model*> p : chars_models) {
-		delete p.second;
-	}
+	for (std::pair<char, Model*> p : chars_models) delete p.second;
 }

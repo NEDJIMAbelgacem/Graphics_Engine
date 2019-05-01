@@ -13,6 +13,7 @@ Model::Model(std::string model_path, ShaderProgram* shader_ptr) {
     this->SetLightColor(glm::vec3(1.0f));
     this->SetLightDirection(glm::vec3(0.0f, 1.0f, 0.0f));
     this->SetSurfaceParameters(0.0f, 1.0f, 1.0f);
+    this->SetModelMatrix(glm::mat4(1.0f));
 
 	Assimp::Importer importer;
 	const aiScene *scene = importer.ReadFile(model_path, aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_GenSmoothNormals);
@@ -50,11 +51,12 @@ void Model::RenderBatch(Batch& batch) {
     for (ModelComponent* c : this->meshes) c->RenderBatch(batch, this->shader);
 }
 
+// TODO : find a way to fix model matrix assignment
 void Model::SetModelMatrix(glm::mat4 matrix) {
-	if (this->model_matrix != matrix) {
+	//if (this->model_matrix != matrix) {
 		model_matrix = matrix;
 		shader->FillUniformMat4f("u_model", matrix);
-	}
+	//}
 }
 
 ModelComponent* Model::GetComponent(int i) {

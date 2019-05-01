@@ -53,8 +53,8 @@ float* HeightMap::GenerateMap(int width, int height, int seed) {
 	};
 
 	const auto get_interpolated_noise = [&](float x, float y) -> float {
-		int intX = (int)y;
-		int intY = (int)x;
+		int intX = (int)x;
+		int intY = (int)y;
 		float fracX = x - intX;
 		float fracY = y - intY;
 

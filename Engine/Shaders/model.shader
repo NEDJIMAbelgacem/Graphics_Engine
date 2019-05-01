@@ -1,0 +1,77 @@
+#shader vertex
+#version 330 core
+
+layout(location = 0) in vec3 verticeCoords;
+layout(location = 1) in vec2 verticeTexture;
+layout(location = 2) in vec3 verticeNormal;
+layout(location = 3) in vec3 offset;
+
+uniform mat4 u_model;
+uniform mat4 u_view;
+uniform mat4 u_proj;
+uniform int u_isBatchRender;
+uniform int u_isClipEnabled;
+uniform vec4 u_clipPlane;
+
+out vec3 v_normal;
+out vec3 v_fragPos;
+out vec2 v_texCoords;
+
+void main() {
+	vec4 worldPos = u_model * vec4(verticeCoords, 1.0f);
+	if (u_isBatchRender != 0) 
+		worldPos = vec4(worldPos.x + offset.x, worldPos.y + offset.y, worldPos.z + offset.z, 1.0f);
+	if (u_isClipEnabled != 0)
+		gl_ClipDistance[0] = dot(worldPos, u_clipPlane);
+	
+	gl_Position = u_proj * u_view * worldPos;
+	v_fragPos = worldPos.xyz;
+	v_normal = (u_model * vec4(verticeNormal, 1.0f)).xyz;
+	v_texCoords = verticeTexture;
+}
+
+#shader fragment
+#version 330 core
+
+uniform int ambientMaps[8];
+uniform int diffuseMaps[8];
+uniform int specularMaps[8];
+uniform int heightMaps[8];
+
+struct Material {
+	sampler2D ambientMaps[7];
+	sampler2D diffuseMaps[7];
+	sampler2D specularMaps[7];
+	sampler2D heightMaps[7];
+	sampler2D materialTexture;
+	float reflectivity;
+	float shineDamper;
+	float diffuseFactor;
+};
+
+out vec4 fragColor;
+
+in vec2 v_texCoords;
+in vec3 v_fragPos;
+in vec3 v_normal;
+uniform Material u_material;
+uniform vec3 u_cameraPos;
+
+uniform vec3 u_lightDir;
+uniform vec3 u_lightColor;
+
+void main() {
+	vec3 lightDir = normalize(u_lightDir);
+	vec3 toCamera = normalize(u_cameraPos - v_fragPos);
+	vec3 norm = normalize(v_normal);
+	vec3 reflVect = reflect(-lightDir, norm);
+	// ambient light
+	vec4 ambientL = 0.1 * texture(u_material.materialTexture, v_texCoords);
+	// diffuse light
+	vec4 diffuseL = max(dot(norm, lightDir), 0.0f) * texture(u_material.materialTexture, v_texCoords);
+	// specular light
+	vec4 specularL = pow(max(dot(reflVect, toCamera), 0.0f), 1) * texture(u_material.materialTexture, v_texCoords);//texture(u_material.specularMaps[0], v_texCoords);
+	
+	fragColor = normalize(((ambientL /*+ specularL + specularL*/) * vec4(u_lightColor, 1.0f)));
+    //fragColor = vec4(vec3(1.0f);
+}

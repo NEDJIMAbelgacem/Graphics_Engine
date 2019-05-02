@@ -32,6 +32,9 @@ bool cursor_enabled = true;
 bool mouse_enabled = false;
 static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
 static void cursor_position_callback(GLFWwindow* window, double xpos, double ypos);
+static void mouse_button_callback(GLFWwindow* window, int button, int action, int mods);
+
+Sphere* sphere_ptr = nullptr;
 
 int main() {
     // initialization context
@@ -64,6 +67,7 @@ int main() {
     {
         glfwSetKeyCallback(window, key_callback);
         glfwSetCursorPosCallback(window, cursor_position_callback);
+        glfwSetMouseButtonCallback(window, mouse_button_callback);
         InitImGui(window, "#version 430");
         
         glCall(glEnable(GL_MULTISAMPLE));
@@ -78,7 +82,9 @@ int main() {
         camera_ptr = new Camera();
         Camera& camera = *camera_ptr;
         camera.SetAngles(0.0f, 0.0f);
-        camera.SetPosition(glm::vec3(1000.0f, 1000.0f, 1000.0f));
+        camera.SetPosition(glm::vec3(300.0f, 300.0f, 300.0f));
+        glm::vec3 sphere_pos(-50.0f, 50.0f, 0.0f);
+        glm::vec3 cube_pos(50.0f, 50.0f, 0.0f);
 
         // imgui passed params
         float camera_speed = 5000.0f;
@@ -86,7 +92,9 @@ int main() {
         float shineDamper = 0.5;
         float diffuseFactor = 0.5;
         glm::vec3 light_color(1.0f);
-        glm::vec3 light_pos(-100.0f, 100.0f, -100.0f);
+        glm::vec3 light_pos(0.0f, 1000.0f, 0.0f);
+        float sphere_size = 100.0f;
+        float cube_size = 100.0f;
 
         DebugTest test;
         test.AddFloatSlider("camera speed", &camera_speed, 0.0f, 10000.0f);
@@ -95,12 +103,18 @@ int main() {
         test.AddFloatSlider("model diffuseFactor", &diffuseFactor);
         test.Add3FloatSlider("light color", &light_color, 0.0f, 1.0f);
         test.Add3FloatsDrag("light position", &light_pos, -1000.0f, 1000.0f, 5.0f);
+        test.Add3FloatsDrag("sphere position", &sphere_pos, -1000.0f, 1000.0f, 5.0f);
+        test.Add3FloatsDrag("cube position", &cube_pos, -1000.0f, 1000.0f, 5.0f);
+        test.Add1FloatsDrag("sphere radius", &sphere_size, -1000.0f, 1000.0f, 5.0f);
+        test.Add1FloatsDrag("cube size", &cube_size, -1000.0f, 1000.0f, 5.0f);
 
         float near_plane = 0.1f, far_plane = 4000.0f;
         float field_of_view = glm::radians(90.0f);
         float aspect_ratio = (float)mWidth / (float)mHeight;
 
         glm::mat4 proj = glm::perspective(field_of_view, aspect_ratio, near_plane, far_plane);
+        camera.SetProjectionMatrix(proj);
+        camera.SetNearFarPlanes(near_plane, far_plane);
         ShaderProgram sky_box_shader(skybox_shader_path);
 
         SkyBox sky_box("mp_drakeq", "drakeq", &sky_box_shader);
@@ -109,11 +123,14 @@ int main() {
 
         ShaderProgram geometry_object_shader(geometry_objects_shader_path);
         geometry_object_shader.FillUniformMat4f("u_proj", proj);
-        Sphere sphere(&geometry_object_shader, glm::vec3(0.0f), 10.f);
-        Cube cube(&geometry_object_shader, glm::vec3(0.0f), glm::vec3(100.0f));
-        Sphere light(&geometry_object_shader, light_pos, 1.0f);
-        Plane plane(glm::vec4(0.0f, 1.0f, 0.0f, 0.0f), glm::vec3(0.0f), 1000.0f, &geometry_object_shader);
 
+        glm::vec3 plane_pos(0.0f);
+        Sphere sphere(&geometry_object_shader, sphere_pos, sphere_size);
+        Cube cube(&geometry_object_shader, cube_pos, glm::vec3(cube_size));
+        Sphere light(&geometry_object_shader, light_pos, 10.0f);
+        Plane plane(glm::vec4(0.0f, 1.0f, 0.0f, 0.0f), plane_pos, 1000.0f, &geometry_object_shader);
+
+        sphere_ptr = &sphere;
         // Rendering Loop
         double time1 = 0.0f;
         double time2 = 0.0f;
@@ -131,14 +148,17 @@ int main() {
             glm::vec3 camera_pos = camera.getCameraPosition();
             geometry_object_shader.FillUniformMat4f("u_view", view_matrix);
             geometry_object_shader.FillUniformVec3("u_cameraPos", camera_pos);
+
             sphere.SetLightColor(light_color);
             sphere.SetLightPosition(light_pos);
-            sphere.SetPosition(glm::vec3(0.0f, -10.0f, 0.0f));
+            sphere.SetPosition(sphere_pos);
+            sphere.SetRadius(sphere_size);
             sphere.Render();
 
             cube.SetLightColor(light_color);
             cube.SetLightPosition(light_pos);
-            cube.SetPosition(glm::vec3(0.0f));
+            cube.SetPosition(cube_pos);
+            cube.SetSize(glm::vec3(cube_size));
             cube.Render();
 
             light.SetLightColor(light_color);
@@ -148,7 +168,7 @@ int main() {
 
             plane.SetLightColor(light_color);
             plane.SetLightPosition(light_pos);
-            plane.SetCenterOffset(glm::vec3(0.0f));
+            plane.SetCenterOffset(plane_pos);
             plane.Render();
 
             //glDepthFunc(GL_LEQUAL);
@@ -212,8 +232,24 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
     }
 }
 
+double mouse_x, mouse_y;
 static void cursor_position_callback(GLFWwindow* window, double xpos, double ypos) {
+    mouse_x = xpos, ypos;
     if (!mouse_enabled) return;
     Camera& camera = *camera_ptr;
     camera.ProcessMouseMove((float)xpos, (float)ypos);
+}
+
+static void mouse_button_callback(GLFWwindow* window, int button, int action, int mods) {
+    if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_PRESS) {
+        std::cout << "mouse press" << std::endl;
+        glm::vec3 origin, ray;
+        Camera& camera = *camera_ptr;
+        camera.GenerateRayFrom(mouse_x, mouse_y, origin, ray);
+        if (sphere_ptr != nullptr) {
+            glm::vec3 point;
+            bool intersects = sphere_ptr->ray_intersection(origin, ray, point);
+            if (intersects) std::cout << "sphere_intersection" << std::endl;
+        } else std::cout << "null sphere pointer" << std::endl;
+    }
 }

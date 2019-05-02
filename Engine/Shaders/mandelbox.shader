@@ -17,7 +17,7 @@ void main() {
 	gl_Position = vec4(pos, 0.0, 1.0);
 	mat4 invprojview = inverse(u_proj_matrix * u_view_matrix);
 	v_origin = (invprojview * (vec4(pos, -1.0, 1.0) * u_near)).xyz;
-	v_ray = -(invprojview * vec4(pos * (u_far - u_near), u_far + u_near, u_far - u_near)).xyz;
+	v_ray = (invprojview * vec4(pos * (u_far - u_near), u_far + u_near, u_far - u_near)).xyz;
 }
 
 #shader fragment

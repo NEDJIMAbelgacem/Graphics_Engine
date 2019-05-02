@@ -5,13 +5,12 @@ Cube::Cube(ShaderProgram* shader, glm::vec3 position, glm::vec3 size, std::strin
     this->SetLightColor(glm::vec3(1.0f));
     this->SetLightPosition(glm::vec3(0.0f, 100.0f, 100.0f));
     this->SetSurfaceParameters(0.0f, 1.0f, 1.0f);
-    this->SetModelMatrix(glm::mat4(1.0f));
     this->position = position;
     this->size = size;
     glm::mat4 m = glm::identity<glm::mat4>();
-    m = glm::scale(m, glm::vec3(size));
-    m = glm::translate(m, glm::vec3(position));
-    this->SetModelMatrix(m);
+    glm::mat4 scale_m = glm::scale(m, glm::vec3(size));
+    glm::mat4 trans_m = glm::translate(m, glm::vec3(position));
+    this->SetModelMatrix(trans_m * scale_m);
 
     this->vao = new VertexArray();
     Assimp::Importer importer;
@@ -34,6 +33,8 @@ Cube::Cube(ShaderProgram* shader, glm::vec3 position, glm::vec3 size, std::strin
 
     int vertices_offset = 0;
     int indexes_offset = 0;
+    glm::vec3 min_c = glm::vec3(99999.0f);
+    glm::vec3 max_c = glm::vec3(-99999.0f);
     for (int i = 0; i < meshes_count; ++i) {
         aiMesh* mesh = scene->mMeshes[i];
         int vertices_count = mesh->mNumVertices;
@@ -41,6 +42,12 @@ Cube::Cube(ShaderProgram* shader, glm::vec3 position, glm::vec3 size, std::strin
 		    vertices[vertices_offset + 3 * i] = mesh->mVertices[i].x;
 		    vertices[vertices_offset + 3 * i + 1] = mesh->mVertices[i].y;
             vertices[vertices_offset + 3 * i + 2] = mesh->mVertices[i].z;
+            if (max_c[0] < mesh->mVertices[i].x) max_c[0] = mesh->mVertices[i].x;
+            if (min_c[0] > mesh->mVertices[i].x) min_c[0] = mesh->mVertices[i].x;
+            if (max_c[1] < mesh->mVertices[i].y) max_c[1] = mesh->mVertices[i].y;
+            if (min_c[1] > mesh->mVertices[i].y) min_c[1] = mesh->mVertices[i].y;
+            if (max_c[2] < mesh->mVertices[i].z) max_c[2] = mesh->mVertices[i].z;
+            if (min_c[2] > mesh->mVertices[i].z) min_c[2] = mesh->mVertices[i].z;
         }
 
         for (int i = 0; i < vertices_count; ++i) {
@@ -58,6 +65,15 @@ Cube::Cube(ShaderProgram* shader, glm::vec3 position, glm::vec3 size, std::strin
 
         vertices_offset += 3 * vertices_count;
         indexes_offset += 3 * faces_count;
+    }
+
+    // normalize vertice coordinates
+    glm::vec3 center_offset = (max_c + min_c) / 2.0f;
+    glm::vec3 size_v = max_c - min_c;
+    for (int i = 0; i < total_vertices_count; ++i) {
+        vertices[3 * i] = (vertices[3 * i] - center_offset[0]) / size_v[0];
+        vertices[3 * i + 1] = (vertices[3 * i + 1] - center_offset[1]) / size_v[1];
+        vertices[3 * i + 2] = (vertices[3 * i + 2] - center_offset[2]) / size_v[2];
     }
     
     vertices_vbo = new VertexBuffer(vertices, vertices_offset * sizeof(float));
@@ -97,18 +113,18 @@ void Cube::Render() {
 
 void Cube::SetPosition(glm::vec3 position) {
     this->position = position;
-    glm::mat4 m = glm::identity<glm::mat4>();
-    m = glm::scale(m, size);
-    m = glm::translate(m, glm::vec3(position));
-    this->SetModelMatrix(m);
+    glm::mat4 identity = glm::identity<glm::mat4>();
+    glm::mat4 trans_m = glm::translate(identity, position);
+    glm::mat4 scale_m = glm::scale(identity, size);
+    this->SetModelMatrix(trans_m * scale_m);
 }
 
 void Cube::SetSize(glm::vec3 size) {
     this->size = size;
-    glm::mat4 m = glm::identity<glm::mat4>();
-    m = glm::scale(m, size);
-    m = glm::translate(m, glm::vec3(position));
-    this->SetModelMatrix(m);
+    glm::mat4 identity = glm::identity<glm::mat4>();
+    glm::mat4 trans_m = glm::translate(identity, position);
+    glm::mat4 scale_m = glm::scale(identity, size);
+    this->SetModelMatrix(trans_m * scale_m);
 }
 
 void Cube::SetModelMatrix(glm::mat4 matrix) {

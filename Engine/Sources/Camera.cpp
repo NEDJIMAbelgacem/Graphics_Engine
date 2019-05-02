@@ -49,8 +49,8 @@ void Camera::SetAngles(float pitch, float yaw) {
 	this->yaw = yaw;
 	if (this->pitch >=  180.0f) this->pitch -= 360.0f;
 	if (this->pitch <= -180.0f) this->pitch += 360.0f;
-	if (this->yaw >=  90.0f) this->yaw -= 180.0f;
-	if (this->yaw <= -90.0f) this->yaw += 180.0f;
+	if (this->yaw >=  180.0f) this->yaw -= 360.0f;
+	if (this->yaw <= -180.0f) this->yaw += 360.0f;
 	/*if (this->pitch <= -MAX_PITCH) 
 		this->pitch = -MAX_PITCH + 1.0f;
 	if (this->pitch >= MAX_PITCH)
@@ -69,6 +69,26 @@ float Camera::GetPitch() {
 
 float Camera::GetYaw() {
 	return yaw;
+}
+
+void Camera::SetNearFarPlanes(float near_plane, float far_plane) {
+    this->near_plane = near_plane;
+    this->far_plane = far_plane;
+}
+
+void Camera::SetProjectionMatrix(glm::mat4 proj) {
+    this->projection_m = proj;
+}
+
+void Camera::GenerateRayFrom(float x, float y, glm::vec3& origin, glm::vec3& ray) {
+    glm::mat4 view = this->getViewMatrix();
+    glm::mat4& proj = this->projection_m;
+    glm::mat4 invprojview = glm::inverse(proj * view);
+    glm::vec2 p(x / 800.0f, y / 600.0f);
+    glm::vec4 origin_v4 = near_plane * invprojview * glm::vec4(p, -1.0, 1.0);
+	glm::vec4 ray_v4 = invprojview * glm::vec4(p * (far_plane - near_plane), far_plane + near_plane, far_plane - near_plane);
+    origin = glm::vec3(origin_v4.x, origin_v4.y, origin_v4.z);
+    ray = glm::vec3(ray_v4.x, ray_v4.y, ray_v4.z);
 }
 
 void Camera::ProcessMouseMove(float x, float y) {

@@ -47,10 +47,6 @@ Plane::Plane(glm::vec4 equation, glm::vec3 center, float size, ShaderProgram* sh
     BufferLayout normals_layout;
     normals_layout.AddElement<float>(3, normals_location);
     vao->AddBuffer(*normals_vbo, normals_layout);
-
-    //unsigned int indexes[]{ 0, 1, 2, 3 };
-    //this->ibo = new IndexBuffer(indexes, 4);
-    //delete indexes;
 }
 
 Plane::~Plane() {

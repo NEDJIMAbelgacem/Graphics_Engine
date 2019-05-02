@@ -26,7 +26,7 @@ void main() {
 	
 	gl_Position = u_proj * u_view * worldPos;
 	v_fragPos = worldPos.xyz;
-	v_normal = (u_model * vec4(verticeNormal, 1.0f)).xyz;
+	v_normal = (u_model * vec4(verticeNormal, 0.0f)).xyz;
 	v_texCoords = verticeTexture;
 }
 

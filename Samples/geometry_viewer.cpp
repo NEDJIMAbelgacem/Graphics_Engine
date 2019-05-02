@@ -14,6 +14,7 @@
 #include "Model.h"
 #include "Geometry/Sphere.h"
 #include "Geometry/Cube.h"
+#include "Geometry/Plane.h"
 
 const int mWidth = 800, mHeight = 600;
 
@@ -111,6 +112,7 @@ int main() {
         Sphere sphere(&geometry_object_shader, glm::vec3(0.0f), 10.f);
         Cube cube(&geometry_object_shader, glm::vec3(0.0f), glm::vec3(100.0f));
         Sphere light(&geometry_object_shader, light_pos, 1.0f);
+        Plane plane(glm::vec4(0.0f, 1.0f, 0.0f, 0.0f), glm::vec3(0.0f), 1000.0f, &geometry_object_shader);
 
         // Rendering Loop
         double time1 = 0.0f;
@@ -143,6 +145,11 @@ int main() {
             light.SetLightPosition(light_pos);
             light.SetPosition(light_pos);
             light.Render();
+
+            plane.SetLightColor(light_color);
+            plane.SetLightPosition(light_pos);
+            plane.SetCenterOffset(glm::vec3(0.0f));
+            plane.Render();
 
             //glDepthFunc(GL_LEQUAL);
             //sky_box.Draw(view_matrix, proj);

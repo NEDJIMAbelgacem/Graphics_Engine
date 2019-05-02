@@ -1,15 +1,17 @@
 #include "Geometry/Plane.h"
 
-Plane::Plane(glm::vec4 equation, glm::vec3 center, float size, int tiles_per_side, std::string shader_path, glm::vec3 color)
-	: equation(equation), center(center), size(size), tiles_per_side(tiles_per_side), shader_path(shader_path), color(color) {
-	shader = new ShaderProgram(shader_path);
-	shader->FillUniformVec3("u_color", color);
-	shader->FillUniformVec3("u_center", center);
-	shader->FillUniform1f("u_size", size);
-	shader->FillUniform1f("u_line_thickness", 0.05f);
-	
+Plane::Plane(glm::vec4 equation, glm::vec3 center, float size, ShaderProgram* shader)
+	: equation(equation), size(size) {
+    vao = new VertexArray();
+	this->shader = shader;
+	this->SetLightColor(glm::vec3(1.0f));
+    this->SetLightPosition(glm::vec3(0.0f, 100.0f, 100.0f));
+    this->SetSurfaceParameters(0.0f, 1.0f, 1.0f);
+    this->SetCenterOffset(center);
+
 	float vertices[3 * 4];
-	unsigned int indexes[]{ 0, 1, 2, 3 };
+    float normals[3 * 4];
+
 	float p = size / 2.0f;
 	for (int i = 0; i < 4; ++i) {
 		float theta = (0.25f + 0.5f * i) * glm::pi<float>();
@@ -34,25 +36,46 @@ Plane::Plane(glm::vec4 equation, glm::vec3 center, float size, int tiles_per_sid
 		vertices[i * 3 + 1] = yp;
 		vertices[i * 3 + 2] = zp;
 	}
-	vbo = new VertexBuffer(vertices, 4 * 3 * sizeof(float));
-}
 
-void Plane::SetZoom(float zoom) {
-	shader->FillUniform1f("u_zoom", zoom);
-}
+	vertices_vbo = new VertexBuffer(vertices, 4 * 3 * sizeof(float));
+    BufferLayout vertices_layout;
+    vertices_layout.AddElement<float>(3, vertices_location);
+    vao->AddBuffer(*vertices_vbo, vertices_layout);
 
-void Plane::SetCenterOffset(glm::vec3 offset) {
-	shader->FillUniformVec3("u_center_offset", offset);
-}
+    for (int i = 0; i < 3 * 4; ++i) normals[i] = equation[i % 3];
+    normals_vbo = new VertexBuffer(normals, 4 * 3 * sizeof(float));
+    BufferLayout normals_layout;
+    normals_layout.AddElement<float>(3, normals_location);
+    vao->AddBuffer(*normals_vbo, normals_layout);
 
-VertexBuffer* Plane::GetVertexBuffer() {
-	return vbo;
-}
-
-ShaderProgram* Plane::GetShader() {
-	return shader;
+    //unsigned int indexes[]{ 0, 1, 2, 3 };
+    //this->ibo = new IndexBuffer(indexes, 4);
+    //delete indexes;
 }
 
 Plane::~Plane() {
-	delete vbo;
+	delete vertices_vbo;
+    delete normals_vbo;
+    delete vao;
+}
+
+void Plane::Render() {
+    shader->Bind();
+    vao->Bind();
+    glCall(glDisable(GL_CULL_FACE));
+	glCall(glDrawArrays(GL_TRIANGLE_FAN, 0, 4));
+    glCall(glEnable(GL_CULL_FACE));
+    vao->Unbind();
+	shader->Unbind();
+}
+
+void Plane::SetModelMatrix(glm::mat4 matrix) {
+    this->model_matrix = matrix;
+    this->shader->FillUniformMat4f("u_model", matrix);
+}
+
+void Plane::SetCenterOffset(glm::vec3 center) {
+    glm::mat4 m = glm::identity<glm::mat4>();
+    m = glm::translate(m, center);
+    this->SetModelMatrix(m);
 }

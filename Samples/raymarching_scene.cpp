@@ -9,7 +9,7 @@
 
 #include "Core/Common.h"
 #include "Core/ShaderProgram.h"
-#include "RayTracer.h"
+#include "RayMarcher.h"
 #include "Camera.h"
 #include "glm/glm.hpp"
 #include "Tests/DebugTest.h"
@@ -22,8 +22,8 @@ void InitImGui(GLFWwindow* window, const char* glsl_version);
 
 void DestroyImGui();
 
-const std::string raymarcher_shader_path = "Shaders/raymarcher_scene1.shader";
-const std::string skybox_shader_path = "Shaders/skybox.shader";
+const std::string raymarcher_shader_path = "Shaders/raymarcher_scene1.glsl";
+const std::string skybox_shader_path = "Shaders/skybox.glsl";
 
 int choosed_skybox = 0;
 std::vector<SkyBox*> skyboxes;
@@ -87,7 +87,7 @@ int main() {
         test.AddInteger("light bounces", &light_bounces, 1, 6);
 
         camera.SetAngles(0.0f, 0.0f);
-        RayTracer rt(raymarcher_shader_path);
+        RayMarcher rt(raymarcher_shader_path);
         rt.SetSkyBoxSlot(0);
         float field_of_view = glm::radians(90.0f);
         float near_plane = 0.1f, far_plane = 1000.0f;

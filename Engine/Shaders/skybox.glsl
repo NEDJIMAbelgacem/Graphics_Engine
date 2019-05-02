@@ -11,9 +11,12 @@ uniform float u_near;
 uniform float u_far;
 
 void main() {
-	gl_Position = vec4(pos, 0.0, 1.0);
-	v_pos = pos;
-	v_ray = -(u_invprojview * vec4(pos * (u_far - u_near), u_far + u_near, u_far - u_near)).xyz;
+    float tan_fov = tan(radians(90.0f) / 2.0f);
+    float aspect_ratio = 800.0f / 600.0f;
+    float x = pos.x * tan_fov * aspect_ratio;
+    float y = pos.y * tan_fov;
+	gl_Position = vec4(x, y, 1.0f, 1.0f);
+	v_ray = (u_invprojview * vec4(pos * (u_far - u_near), u_far + u_near, u_far - u_near)).xyz;
 }
 
 #shader fragment
@@ -22,7 +25,6 @@ void main() {
 uniform float u_near;
 uniform float u_far;
 
-in vec2 v_pos;
 in vec3 v_ray;
 out vec4 fragColor;
 

@@ -21,9 +21,9 @@ void InitImGui(GLFWwindow* window, const char* glsl_version);
 
 void DestroyImGui();
 
-const std::string skybox_shader_path = "Shaders/skybox.shader";
-const std::string terrain_shader_path = "Shaders/terrain.shader";
-const std::string model_shader_path = "Shaders/model.shader";
+const std::string skybox_shader_path = "Shaders/skybox.glsl";
+const std::string terrain_shader_path = "Shaders/terrain.glsl";
+const std::string model_shader_path = "Shaders/model.glsl";
 const std::string model_path = "Resources/LowPolyTree/lowpolytree.obj";
 const std::string terrain_texture1_path = "Resources/textures/red_dirt_mud_01_diff_1k.jpg";
 const std::string terrain_texture2_path = "Resources/textures/grassy2.png";
@@ -158,10 +158,6 @@ int main() {
             proj = glm::perspective(field_of_view, aspect_ratio, near_plane, far_plane);
             glm::mat4 view_matrix = camera.getViewMatrix();
 
-            //glDepthFunc(GL_LEQUAL);
-            //sky_box.Draw(view_matrix, proj);
-            //glDepthFunc(GL_LESS);
-
             glm::mat4 rotation_m = glm::rotate(glm::identity<glm::mat4>(), glm::radians(model_rotation), glm::vec3(1.0f, 0.0f, 0.0f));
             float model_x = model_pos.x, model_z = model_pos.y;
             float model_y = terrain.GetHeight(model_x, model_z);
@@ -185,6 +181,10 @@ int main() {
             alphabet_atlas.SetCameraPosition(camera.getCameraPosition());
             alphabet_atlas.SetSurfaceParameters(reflectivity, shineDamper, diffuseFactor);
             alphabet_atlas.Render(glm::vec3(-100.0f, 50.0f, -100.0f), "ABC", 100.0f);
+
+            //glDepthFunc(GL_LEQUAL);
+            sky_box.Draw(view_matrix, proj);
+            //glDepthFunc(GL_LESS);
 
             // imgui stuff
             glm::vec3 pos = camera.getCameraPosition();

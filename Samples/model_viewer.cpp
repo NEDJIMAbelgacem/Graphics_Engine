@@ -20,8 +20,8 @@ void InitImGui(GLFWwindow* window, const char* glsl_version);
 
 void DestroyImGui();
 
-const std::string skybox_shader_path = "Shaders/skybox.shader";
-const std::string model_shader_path = "Shaders/model.shader";
+const std::string skybox_shader_path = "Shaders/skybox.glsl";
+const std::string model_shader_path = "Shaders/model.glsl";
 const std::string model_path = "Resources/nanosuit/nanosuit.obj";
 
 float delta = 0.0f;
@@ -132,7 +132,7 @@ int main() {
 
             model_object.Render();
             //glDepthFunc(GL_LEQUAL);
-            //sky_box.Draw(view_matrix, proj);
+            sky_box.Draw(view_matrix, proj);
             //glDepthFunc(GL_LESS);
 
             // imgui stuff
@@ -181,7 +181,7 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
     if (action == GLFW_PRESS || action == GLFW_REPEAT) {
         if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS) 
             glfwSetWindowShouldClose(window, GLFW_TRUE);
-        if (key == GLFW_KEY_W || key == GLFW_KEY_W)
+        if (key == GLFW_KEY_W || key == GLFW_KEY_UP)
             camera.ProcessKeyboard(GLFW_KEY_UP, delta);
         if (key == GLFW_KEY_S || key == GLFW_KEY_DOWN)
             camera.ProcessKeyboard(GLFW_KEY_DOWN, delta);

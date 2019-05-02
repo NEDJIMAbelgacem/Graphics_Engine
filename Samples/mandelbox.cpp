@@ -21,8 +21,8 @@ void InitImGui(GLFWwindow* window, const char* glsl_version);
 
 void DestroyImGui();
 
-const std::string mandelbox_shader_path = "Shaders/mandelbox.shader";
-const std::string skybox_shader_path = "Shaders/skybox.shader";
+const std::string mandelbox_shader_path = "Shaders/mandelbox.glsl";
+const std::string skybox_shader_path = "Shaders/skybox.glsl";
 
 float delta = 0.0f;
 Camera* camera_ptr;
@@ -92,7 +92,7 @@ int main() {
         camera.SetAngles(0.0f, 0.0f);
 
         float field_of_view = glm::radians(90.0f);
-        float near_plane = -0.1f, far_plane = -1000.0f;
+        float near_plane = 0.1f, far_plane = 4000.0f;
         float aspect_ratio = (float)mWidth / (float)mHeight;
 
         glm::mat4 proj = glm::perspective(field_of_view, aspect_ratio, near_plane, far_plane);

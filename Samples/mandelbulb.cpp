@@ -14,6 +14,7 @@
 #include "glm/glm.hpp"
 #include "Tests/DebugTest.h"
 #include "SkyBox.h"
+#include "Geometry/Cube.h"
 
 const int mWidth = 800, mHeight = 600;
 
@@ -21,8 +22,9 @@ void InitImGui(GLFWwindow* window, const char* glsl_version);
 
 void DestroyImGui();
 
-const std::string mandelbox_shader_path = "Shaders/mandelbulb.shader";
-const std::string skybox_shader_path =  "Shaders/skybox.shader";
+const std::string mandelbox_shader_path = "Shaders/mandelbulb.glsl";
+const std::string skybox_shader_path =  "Shaders/skybox.glsl";
+const std::string geometry_objects_shader_path = "Shaders/geometry_objects.glsl";
 
 float delta = 0.0f;
 Camera* camera_ptr;
@@ -88,7 +90,7 @@ int main() {
         camera.SetAngles(0.0f, 0.0f);
 
         float field_of_view = glm::radians(90.0f);
-        float near_plane = -0.1f, far_plane = -1000.0f;
+        float near_plane = 0.1f, far_plane = 4000.0f;
         float aspect_ratio = (float)mWidth / (float)mHeight;
 
         glm::mat4 proj = glm::perspective(field_of_view, aspect_ratio, near_plane, far_plane);
@@ -100,6 +102,12 @@ int main() {
         SkyBox skybox("ame_ash", "ashcanyon", &skybox_shader);
         skybox_shader.FillUniform1f("u_near", near_plane);
         skybox_shader.FillUniform1f("u_far", far_plane);
+
+        ShaderProgram geometry_object_shader(geometry_objects_shader_path);
+        geometry_object_shader.FillUniformMat4f("u_proj", proj);
+        glm::vec3 cube_pos(1000.0f, 100.0f, 0.0f);
+        float cube_size = 50.0f;
+        Cube cube(&geometry_object_shader, cube_pos, glm::vec3(cube_size));
 
         // Rendering Loop
         double time1 = 0.0f;
@@ -117,9 +125,19 @@ int main() {
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
             glm::mat4 view_matrix = camera.getViewMatrix();
 
-            skybox.Draw(view_matrix, proj);
             mb.SetViewMatrix(view_matrix);
             mb.Render();
+
+            geometry_object_shader.FillUniformMat4f("u_view", view_matrix);
+            geometry_object_shader.FillUniformVec3("u_cameraPos", camera.getCameraPosition());
+            cube.SetLightColor(glm::vec3(1.0f));
+            cube.SetLightPosition(glm::vec3(0.0f, 1000.0f, 0.0f));
+            cube.SetPosition(cube_pos);
+            cube.SetSize(glm::vec3(cube_size));
+            cube.Render();
+
+            skybox.Draw(view_matrix, proj);
+
             // imgui stuff
             test.Display();
             test.Render();
@@ -164,7 +182,7 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
     if (action == GLFW_PRESS || action == GLFW_REPEAT) {
         if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS) 
             glfwSetWindowShouldClose(window, GLFW_TRUE);
-        if (key == GLFW_KEY_W || key == GLFW_KEY_W)
+        if (key == GLFW_KEY_W || key == GLFW_KEY_UP)
             camera.ProcessKeyboard(GLFW_KEY_UP, delta);
         if (key == GLFW_KEY_S || key == GLFW_KEY_DOWN)
             camera.ProcessKeyboard(GLFW_KEY_DOWN, delta);

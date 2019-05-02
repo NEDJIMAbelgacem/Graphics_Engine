@@ -21,8 +21,8 @@ void InitImGui(GLFWwindow* window, const char* glsl_version);
 
 void DestroyImGui();
 
-const std::string skybox_shader_path = "Shaders/skybox.shader";
-const std::string model_shader_path = "Shaders/model.shader";
+const std::string skybox_shader_path = "Shaders/skybox.glsl";
+const std::string model_shader_path = "Shaders/model.glsl";
 const std::string model_path = "Resources/nanosuit/nanosuit.obj";
 
 float delta = 0.0f;
@@ -139,7 +139,7 @@ int main() {
 
             model_object.RenderBatch(batch);
             //glDepthFunc(GL_LEQUAL);
-            //sky_box.Draw(view_matrix, proj);
+            sky_box.Draw(view_matrix, proj);
             //glDepthFunc(GL_LESS);
 
             // imgui stuff

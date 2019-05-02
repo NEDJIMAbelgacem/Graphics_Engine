@@ -22,7 +22,7 @@ void InitImGui(GLFWwindow* window, const char* glsl_version);
 
 void DestroyImGui();
 
-const std::string skybox_shader_path = "Shaders/skybox.shader";
+const std::string skybox_shader_path = "Shaders/skybox.glsl";
 const std::string geometry_objects_shader_path = "Shaders/geometry_objects.glsl";
 
 float delta = 0.0f;
@@ -35,7 +35,6 @@ static void cursor_position_callback(GLFWwindow* window, double xpos, double ypo
 static void mouse_button_callback(GLFWwindow* window, int button, int action, int mods);
 
 Sphere* sphere_ptr = nullptr;
-glm::vec3 sphere_offset = glm::vec3(0.0f);
 glm::vec3 sphere_pos(-100.0f, 50.0f, 0.0f);
 
 int main() {
@@ -153,7 +152,7 @@ int main() {
 
             sphere.SetLightColor(light_color);
             sphere.SetLightPosition(light_pos);
-            sphere.SetPosition(sphere_pos + sphere_offset);
+            sphere.SetPosition(sphere_pos);
             sphere.SetRadius(sphere_size);
             sphere.Render();
 
@@ -174,7 +173,7 @@ int main() {
             plane.Render();
 
             //glDepthFunc(GL_LEQUAL);
-            //sky_box.Draw(view_matrix, proj);
+            sky_box.Draw(view_matrix, proj);
             //glDepthFunc(GL_LESS);
 
             // imgui stuff
@@ -242,31 +241,13 @@ static void cursor_position_callback(GLFWwindow* window, double xpos, double ypo
     mouse_x = xpos;
     mouse_y = ypos;
     if (sphere_selected) {
-        std::cout << "sphere_selected == true" << std::endl;
         Camera& camera = *camera_ptr;
-        /*float x_diff = (float)mouse_x - selection_origin.x;
-        float y_diff = (float)mouse_y - selection_origin.y;
-
-        float field_of_view = glm::radians(90.0f);
-        float aspect_ratio = 800.0f / 600.0f;
-        float tan_fov = glm::tan(field_of_view / 2.0f);
-        float ndc_x = (x_diff + 0.5f) / 800.0f;
-        float ndc_y = (y_diff + 0.5f) / 600.0f;
-        float pixel_x = (2.0f * ndc_x - 1.0f) * tan_fov * aspect_ratio;
-        float pixel_y = (1.0f - 2.0f * ndc_y) * tan_fov;
-        pixel_x *= 800.0f;
-        pixel_y *= 600.0f;*/
-
         glm::vec3 origin, ray;
         camera.GenerateRayFrom((float)mouse_x, (float)mouse_y, origin, ray);
         float cos_theta = glm::dot(ray, selection_ray);
         float distance = selection_point_distance / cos_theta;
-        sphere_offset =  origin + distance * ray - sphere_pos;
-
-        //glm::vec3 up = camera.GetUpDirection();
-        //glm::vec3 right = camera.GetRightDirection();
-        //sphere_offset = pixel_x * right + pixel_y * up;
-    } //else std::cout << "sphere_selected == false" << std::endl;
+        sphere_pos = origin + distance * ray;
+    }
     if (!mouse_enabled) return;
     Camera& camera = *camera_ptr;
     camera.ProcessMouseMove((float)xpos, (float)ypos);
@@ -274,7 +255,6 @@ static void cursor_position_callback(GLFWwindow* window, double xpos, double ypo
 
 static void mouse_button_callback(GLFWwindow* window, int button, int action, int mods) {
     if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_PRESS) {
-        std::cout << "mouse press" << std::endl;
         glm::vec3 origin, ray;
         Camera& camera = *camera_ptr;
         camera.GenerateRayFrom((float)mouse_x, (float)mouse_y, origin, ray);
@@ -285,12 +265,8 @@ static void mouse_button_callback(GLFWwindow* window, int button, int action, in
                 sphere_selected = true;
                 selection_ray = ray;
                 selection_point_distance = distance;
-                std::cout << "sphere_intersection detected" << std::endl;
             }
-            else std::cout << "sphere_intersection not detected" << std::endl;
-        } else std::cout << "null sphere pointer" << std::endl;
-        return;
+        }
     }
-    sphere_selected = false;
-    sphere_offset = glm::vec3(0.0f);
+    else sphere_selected = false;
 }

@@ -13,6 +13,7 @@
 #include "SkyBox.h"
 #include "Model.h"
 #include "Geometry/Sphere.h"
+#include "Geometry/Cube.h"
 
 const int mWidth = 800, mHeight = 600;
 
@@ -108,6 +109,7 @@ int main() {
         ShaderProgram geometry_object_shader(geometry_objects_shader_path);
         geometry_object_shader.FillUniformMat4f("u_proj", proj);
         Sphere sphere(&geometry_object_shader, glm::vec3(0.0f), 10.f);
+        Cube cube(&geometry_object_shader, glm::vec3(0.0f), glm::vec3(100.0f));
         Sphere light(&geometry_object_shader, light_pos, 1.0f);
 
         // Rendering Loop
@@ -129,8 +131,13 @@ int main() {
             geometry_object_shader.FillUniformVec3("u_cameraPos", camera_pos);
             sphere.SetLightColor(light_color);
             sphere.SetLightPosition(light_pos);
-            sphere.SetPosition(glm::vec3(0.0f));
+            sphere.SetPosition(glm::vec3(0.0f, -10.0f, 0.0f));
             sphere.Render();
+
+            cube.SetLightColor(light_color);
+            cube.SetLightPosition(light_pos);
+            cube.SetPosition(glm::vec3(0.0f));
+            cube.Render();
 
             light.SetLightColor(light_color);
             light.SetLightPosition(light_pos);

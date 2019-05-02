@@ -35,6 +35,8 @@ static void cursor_position_callback(GLFWwindow* window, double xpos, double ypo
 static void mouse_button_callback(GLFWwindow* window, int button, int action, int mods);
 
 Sphere* sphere_ptr = nullptr;
+glm::vec3 sphere_offset = glm::vec3(0.0f);
+glm::vec3 sphere_pos(-100.0f, 50.0f, 0.0f);
 
 int main() {
     // initialization context
@@ -82,8 +84,7 @@ int main() {
         camera_ptr = new Camera();
         Camera& camera = *camera_ptr;
         camera.SetAngles(0.0f, 0.0f);
-        camera.SetPosition(glm::vec3(300.0f, 300.0f, 300.0f));
-        glm::vec3 sphere_pos(-50.0f, 50.0f, 0.0f);
+        camera.SetPosition(glm::vec3(500.0f, 500.0f, 500.0f));
         glm::vec3 cube_pos(50.0f, 50.0f, 0.0f);
 
         // imgui passed params
@@ -92,9 +93,9 @@ int main() {
         float shineDamper = 0.5;
         float diffuseFactor = 0.5;
         glm::vec3 light_color(1.0f);
-        glm::vec3 light_pos(0.0f, 1000.0f, 0.0f);
-        float sphere_size = 100.0f;
-        float cube_size = 100.0f;
+        glm::vec3 light_pos(300.0f, 300.0f, 300.0f);
+        float sphere_size = 50.0f;
+        float cube_size = 50.0f;
 
         DebugTest test;
         test.AddFloatSlider("camera speed", &camera_speed, 0.0f, 10000.0f);
@@ -115,6 +116,7 @@ int main() {
         glm::mat4 proj = glm::perspective(field_of_view, aspect_ratio, near_plane, far_plane);
         camera.SetProjectionMatrix(proj);
         camera.SetNearFarPlanes(near_plane, far_plane);
+        camera.SetFieldOfView(field_of_view);
         ShaderProgram sky_box_shader(skybox_shader_path);
 
         SkyBox sky_box("mp_drakeq", "drakeq", &sky_box_shader);
@@ -151,7 +153,7 @@ int main() {
 
             sphere.SetLightColor(light_color);
             sphere.SetLightPosition(light_pos);
-            sphere.SetPosition(sphere_pos);
+            sphere.SetPosition(sphere_pos + sphere_offset);
             sphere.SetRadius(sphere_size);
             sphere.Render();
 
@@ -232,9 +234,39 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
     }
 }
 
+bool sphere_selected = false;
+glm::vec3 selection_ray;
+float selection_point_distance = 0.0f;
 double mouse_x, mouse_y;
 static void cursor_position_callback(GLFWwindow* window, double xpos, double ypos) {
-    mouse_x = xpos, ypos;
+    mouse_x = xpos;
+    mouse_y = ypos;
+    if (sphere_selected) {
+        std::cout << "sphere_selected == true" << std::endl;
+        Camera& camera = *camera_ptr;
+        /*float x_diff = (float)mouse_x - selection_origin.x;
+        float y_diff = (float)mouse_y - selection_origin.y;
+
+        float field_of_view = glm::radians(90.0f);
+        float aspect_ratio = 800.0f / 600.0f;
+        float tan_fov = glm::tan(field_of_view / 2.0f);
+        float ndc_x = (x_diff + 0.5f) / 800.0f;
+        float ndc_y = (y_diff + 0.5f) / 600.0f;
+        float pixel_x = (2.0f * ndc_x - 1.0f) * tan_fov * aspect_ratio;
+        float pixel_y = (1.0f - 2.0f * ndc_y) * tan_fov;
+        pixel_x *= 800.0f;
+        pixel_y *= 600.0f;*/
+
+        glm::vec3 origin, ray;
+        camera.GenerateRayFrom((float)mouse_x, (float)mouse_y, origin, ray);
+        float cos_theta = glm::dot(ray, selection_ray);
+        float distance = selection_point_distance / cos_theta;
+        sphere_offset =  origin + distance * ray - sphere_pos;
+
+        //glm::vec3 up = camera.GetUpDirection();
+        //glm::vec3 right = camera.GetRightDirection();
+        //sphere_offset = pixel_x * right + pixel_y * up;
+    } //else std::cout << "sphere_selected == false" << std::endl;
     if (!mouse_enabled) return;
     Camera& camera = *camera_ptr;
     camera.ProcessMouseMove((float)xpos, (float)ypos);
@@ -245,11 +277,20 @@ static void mouse_button_callback(GLFWwindow* window, int button, int action, in
         std::cout << "mouse press" << std::endl;
         glm::vec3 origin, ray;
         Camera& camera = *camera_ptr;
-        camera.GenerateRayFrom(mouse_x, mouse_y, origin, ray);
+        camera.GenerateRayFrom((float)mouse_x, (float)mouse_y, origin, ray);
         if (sphere_ptr != nullptr) {
-            glm::vec3 point;
-            bool intersects = sphere_ptr->ray_intersection(origin, ray, point);
-            if (intersects) std::cout << "sphere_intersection" << std::endl;
+            float distance;
+            bool intersects = sphere_ptr->ray_intersection(origin, ray, distance);
+            if (intersects) {
+                sphere_selected = true;
+                selection_ray = ray;
+                selection_point_distance = distance;
+                std::cout << "sphere_intersection detected" << std::endl;
+            }
+            else std::cout << "sphere_intersection not detected" << std::endl;
         } else std::cout << "null sphere pointer" << std::endl;
+        return;
     }
+    sphere_selected = false;
+    sphere_offset = glm::vec3(0.0f);
 }

@@ -19,7 +19,10 @@ public:
 	Camera(glm::vec3 position = glm::vec3(-100.0f, 100.0f, 500.0f), glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f), float yaw = YAW, float pitch = PITCH);
 	void SetPosition(glm::vec3 pos);
 	void SetAngles(float pitch, float yaw);
+
+
     void SetNearFarPlanes(float near_plane, float far_plane);
+    void SetFieldOfView(float alpha);
     void SetProjectionMatrix(glm::mat4 proj);
 	void ProcessMouseMove(float x, float y);
 	float GetPitch();
@@ -27,6 +30,8 @@ public:
 	glm::mat4 getViewMatrix();
 	glm::mat4 getMirroredViewMatrix();
 	glm::vec3 getCameraPosition();
+    glm::vec3 GetRightDirection();
+    glm::vec3 GetUpDirection();
 	void SetCameraSpeed(float speed);
 
 	void ProcessKeyboard(int direction, float deltaTime);
@@ -50,5 +55,6 @@ private:
 	bool firstMove = true;
 
     float near_plane, far_plane;
+    float field_of_view;
     glm::mat4 projection_m;
 };

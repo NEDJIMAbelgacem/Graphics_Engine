@@ -80,15 +80,36 @@ void Camera::SetProjectionMatrix(glm::mat4 proj) {
     this->projection_m = proj;
 }
 
+void Camera::SetFieldOfView(float alpha) {
+    this->field_of_view = alpha;
+}
+
+glm::vec3 Camera::GetRightDirection() {
+    return glm::normalize(this->cameraRight);
+}
+
+glm::vec3 Camera::GetUpDirection() {
+    return glm::normalize(this->cameraUp);
+}
+
 void Camera::GenerateRayFrom(float x, float y, glm::vec3& origin, glm::vec3& ray) {
-    glm::mat4 view = this->getViewMatrix();
-    glm::mat4& proj = this->projection_m;
-    glm::mat4 invprojview = glm::inverse(proj * view);
-    glm::vec2 p(x / 800.0f, y / 600.0f);
-    glm::vec4 origin_v4 = near_plane * invprojview * glm::vec4(p, -1.0, 1.0);
-	glm::vec4 ray_v4 = invprojview * glm::vec4(p * (far_plane - near_plane), far_plane + near_plane, far_plane - near_plane);
-    origin = glm::vec3(origin_v4.x, origin_v4.y, origin_v4.z);
-    ray = glm::vec3(ray_v4.x, ray_v4.y, ray_v4.z);
+    float aspect_ratio = 800.0f / 600.0f;
+    float tan_fov = glm::tan(field_of_view / 2.0f);
+    float ndc_x = (x + 0.5f) / 800.0f;
+    float ndc_y = (y + 0.5f) / 600.0f;
+    float pixel_x = (2.0f * ndc_x - 1.0f) * tan_fov * aspect_ratio;
+    float pixel_y = (1.0f - 2.0f * ndc_y) * tan_fov;
+
+    glm::vec4 pixel_c = glm::vec4(pixel_x, pixel_y, -1.0f, 1.0f);
+    glm::vec4 origin_c = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
+    glm::mat4 inv_view = glm::inverse(this->getViewMatrix());
+
+    glm::vec4 ray_start = inv_view * origin_c;
+    glm::vec4 ray_end = inv_view * pixel_c;
+
+    origin = glm::vec3(ray_start.x, ray_start.y, ray_start.z);
+    ray_end = glm::normalize(ray_end - ray_start);
+    ray = glm::normalize(glm::vec3(ray_end.x, ray_end.y, ray_end.z));
 }
 
 void Camera::ProcessMouseMove(float x, float y) {

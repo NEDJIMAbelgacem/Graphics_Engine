@@ -35,7 +35,7 @@ public:
     void SetRadius(float radius);
     void SetModelMatrix(glm::mat4 matrix);
 
-    bool ray_intersection(glm::vec3 origin, glm::vec3 ray, glm::vec3& intersection_point);
+    bool ray_intersection(glm::vec3 origin, glm::vec3 ray, float& depth);
     float is_point_inside(glm::vec3 point);
 
     void Render();

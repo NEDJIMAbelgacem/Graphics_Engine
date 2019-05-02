@@ -62,18 +62,18 @@ Cube::Cube(ShaderProgram* shader, glm::vec3 position, glm::vec3 size, std::strin
             indexes[indexes_offset + 3 * i + 1] = mesh->mFaces[i].mIndices[1];
             indexes[indexes_offset + 3 * i + 2] = mesh->mFaces[i].mIndices[2];
         }
-
         vertices_offset += 3 * vertices_count;
         indexes_offset += 3 * faces_count;
     }
 
     // normalize vertice coordinates
+    // normalized vertice coordinate are in [-1.0f, 1.0f] space and centered around vec3(0.0f)
     glm::vec3 center_offset = (max_c + min_c) / 2.0f;
     glm::vec3 size_v = max_c - min_c;
     for (int i = 0; i < total_vertices_count; ++i) {
-        vertices[3 * i] = (vertices[3 * i] - center_offset[0]) / size_v[0];
-        vertices[3 * i + 1] = (vertices[3 * i + 1] - center_offset[1]) / size_v[1];
-        vertices[3 * i + 2] = (vertices[3 * i + 2] - center_offset[2]) / size_v[2];
+        vertices[3 * i] = (vertices[3 * i] - center_offset[0]) / size_v[0] * 2.0f;
+        vertices[3 * i + 1] = (vertices[3 * i + 1] - center_offset[1]) / size_v[1] * 2.0f;
+        vertices[3 * i + 2] = (vertices[3 * i + 2] - center_offset[2]) / size_v[2] * 2.0f;
     }
     
     vertices_vbo = new VertexBuffer(vertices, vertices_offset * sizeof(float));

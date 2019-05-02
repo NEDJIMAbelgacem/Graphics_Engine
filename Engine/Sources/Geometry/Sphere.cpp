@@ -75,14 +75,16 @@ Sphere::Sphere(ShaderProgram* shader, glm::vec3 position, float radius, std::str
     std::cout << "min : " << min_c.x << " " << min_c.y << " " << min_c.z << std::endl;
     std::cout << "min : " << max_c.x << " " << max_c.y << " " << max_c.z << std::endl;
 
+    // normalize vertice coordinates
+    // normalized vertice coordinate are in [-1.0f, 1.0f] space and centered around vec3(0.0f)
     glm::vec3 min_c2 = glm::vec3(99999.0f);
     glm::vec3 max_c2 = glm::vec3(-99999.0f);
     glm::vec3 center_offset = (max_c + min_c) / 2.0f;
     glm::vec3 size_v = max_c - min_c;
     for (int i = 0; i < total_vertices_count; ++i) {
-        vertices[3 * i] = (vertices[3 * i] - center_offset[0]) / size_v[0];
-        vertices[3 * i + 1] = (vertices[3 * i + 1] - center_offset[1]) / size_v[1];
-        vertices[3 * i + 2] = (vertices[3 * i + 2] - center_offset[2]) / size_v[2];
+        vertices[3 * i] = (vertices[3 * i] - center_offset[0]) / size_v[0] * 2.0f;
+        vertices[3 * i + 1] = (vertices[3 * i + 1] - center_offset[1]) / size_v[1] * 2.0f;
+        vertices[3 * i + 2] = (vertices[3 * i + 2] - center_offset[2]) / size_v[2] * 2.0f;
         for (int j = 0; j < 3; ++j) {
             if (vertices[3 * i + j] < min_c2[j]) min_c2[j] = vertices[3 * i + j];
             if (vertices[3 * i + j] > max_c2[j]) max_c2[j] = vertices[3 * i + j];
@@ -143,12 +145,25 @@ void Sphere::SetRadius(float radius) {
     this->SetModelMatrix(trans_m * scale_m);
 }
 
-bool Sphere::ray_intersection(glm::vec3 origin, glm::vec3 ray, glm::vec3& intersection_point) {
-    glm::vec3& center = this->position;
-    float& radius = this->radius;
-    float distance_to_perimeter = glm::length(origin - center) - radius;
-    intersection_point = origin + distance_to_perimeter * ray;
-    return this->is_point_inside(intersection_point);
+bool Sphere::ray_intersection(glm::vec3 origin, glm::vec3 ray, float& depth) {
+    origin = origin - position;
+    float xo = origin.x, yo = origin.y, zo = origin.z;
+    float xr = ray.x, yr = ray.y, zr = ray.z;
+    float a = xr * xr + yr * yr + zr * zr;
+    float b = 2.0f * (xo * xr + yo * yr + zo * zr);
+    float c = xo * xo + yo * yo + zo * zo - radius * radius;
+    // solve equation a * d^2 + b * d + c = 0
+    float delta = b * b - 4 * a * c;
+    if (delta < 0) return false;
+    float sqrt_delta = glm::sqrt(delta);
+    float d1 = -(b + sqrt_delta) / a / 2.0f;
+    float d2 = -(b - sqrt_delta) / a / 2.0f;
+    float max = d1 > d2 ? d1 : d2;
+    float min = d1 < d2 ? d1 : d2;
+    if (max < 0 || min < 0) return false;
+    depth = min;
+    //intersection_point += position;
+    return true;
 }
 
 float Sphere::is_point_inside(glm::vec3 point) {

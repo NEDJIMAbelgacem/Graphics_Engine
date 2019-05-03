@@ -4,6 +4,7 @@
 #include "Core/VertexArray.h"
 #include "Core/VertexBuffer.h"
 #include "stb_image.h"
+#include "Logger.h"
 
 #define equirectangular2cubemap_shader_path "Shaders/Cubemap/equirectangular2cubemap.glsl"
 #define irradiance_shader_path "Shaders/Cubemap/irradiance.glsl"

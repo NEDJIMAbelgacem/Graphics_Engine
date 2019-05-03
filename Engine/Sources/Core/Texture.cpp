@@ -7,11 +7,7 @@ Texture::Texture(std::string path, bool flip_on_load)
 		stbi_set_flip_vertically_on_load(true);
 
 	unsigned char* texture_buffer = stbi_load(path.c_str(), &width, &height, &bitsPerPixel, 0);
-	if (texture_buffer == nullptr) {
-		std::cout << "[texture Error] can't load " << path << std::endl;
-		std::cout << stbi_failure_reason() << std::endl;
-		ASSERT(false);
-	}
+	if (texture_buffer == nullptr) N3D_LOG_FATAL("error at {} loading image \"{}\", stbi_failure_reason : {}", LINE_POSITION, path, stbi_failure_reason());
 
 	glCall(glGenTextures(1, &id));
 	glCall(glBindTexture(GL_TEXTURE_2D, id));

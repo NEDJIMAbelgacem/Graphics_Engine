@@ -1,6 +1,7 @@
 #pragma once
 #include "Core/Common.h"
 #include "stb_image.h"
+#include "Logger.h"
 
 class Texture {
 private:

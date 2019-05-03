@@ -7,10 +7,7 @@ ModelComponent::ModelComponent(std::string directory, const aiMesh* mesh, const 
     tangent_count = mesh->HasTangentsAndBitangents() ? mesh->mNumVertices : 0;
     indexes_count = 3 * mesh->mNumFaces;
 
-    if (vertices_count == 0) {
-        std::cout << "[Warning] model component has no vertices" << std::endl;
-        return;
-    }
+    if (vertices_count == 0) N3D_LOG_WARN("model component has no vertices");
 
     this->vao = new VertexArray();
 
@@ -176,7 +173,7 @@ void ModelComponent::LoadTextures(aiMaterial* material, std::string directory, a
 		if (textures_map.find(texture_path) == textures_map.end()) {
 			Texture* tex = new Texture(texture_path);
 			textures_map[texture_path] = tex;
-            std::cout << "loading texture " << texture_path << std::endl;
+            N3D_LOG_INFO("loading texture {}", texture_path);
 		}
 		switch (type) {
 		case aiTextureType_DIFFUSE:

@@ -18,10 +18,7 @@ Model::Model(std::string model_path, ShaderProgram* shader_ptr) {
 	Assimp::Importer importer;
 	const aiScene *scene = importer.ReadFile(model_path, aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_GenSmoothNormals);
 	if (scene == nullptr || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || scene->mRootNode == nullptr)
-	{
-		std::cout << "ERROR::ASSIMP:: " << importer.GetErrorString() << std::endl;
-		__debugbreak();
-	}
+        N3D_LOG_FATAL("assimp asset loading error : {}", importer.GetErrorString());
 	std::string directory = model_path;
 	while (directory.size() != 0 && directory.back() != '/') directory.pop_back();
 	for (unsigned int i = 0; i < scene->mNumMeshes; ++i) {

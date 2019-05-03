@@ -6,6 +6,7 @@
 #include <sstream>
 #include <iostream>
 #include "glm/glm.hpp"
+#include "Logger.h"
 
 struct ShaderSource {
 	std::string vertex_shader;

@@ -99,7 +99,7 @@ void SkyBox::LoadLightParameters(std::string folder, glm::vec3& light_dir, glm::
 }
 
 unsigned char* SkyBox::RotateImage(unsigned char* data, int x, int y, int nb_c, bool anti) {
-	if (x != y) std::cerr << "warning : cube map face not a square" << std::endl;
+	if (x != y) N3D_LOG_WARN("cube map face not a square and I haven't implemented that path yet :3");
 	unsigned char* data2 = new unsigned char[x * y * nb_c];
 	for (int i = 0; i < x; ++i) {
 		for (int j = 0; j < y; ++j) {

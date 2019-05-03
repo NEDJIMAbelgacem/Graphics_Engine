@@ -103,7 +103,7 @@ ShaderSource ShaderProgram::LoadShadersSourceFrom(const std::string& source_path
 	std::stringstream shaders[2];
 	std::ifstream input(source_path);
 	if (!input.is_open()) {
-		std::cout << "Unable to open file " << source_path << std::endl;
+        Logger::N3D_CORE_FATAL("Unable to open \"{}\"", source_path);
 		__debugbreak();
 	}
 	while (std::getline(input, line)) {
@@ -124,8 +124,7 @@ void ShaderProgram::PrintShaderInfoLog(int shader_id, GLenum type) {
 	glCall(glGetShaderiv(shader_id, GL_INFO_LOG_LENGTH, &length));
 	char* message = (char*)alloca(length * sizeof(char));
 	glCall(glGetShaderInfoLog(shader_id, length, &length, message));
-	std::cout << "Error in " << (type == GL_VERTEX_SHADER ? "vertex" : "fragment") << " shader!" << std::endl;
-	std::cout << message << std::endl;
+    Logger::N3D_CORE_FATAL("{} shader : {}", type == GL_VERTEX_SHADER ? "vertex" : "fragment", message);
 }
 
 void ShaderProgram::PrintProgramInfoLog(int program_id) {
@@ -133,7 +132,7 @@ void ShaderProgram::PrintProgramInfoLog(int program_id) {
 	glCall(glGetProgramiv(program_id, GL_INFO_LOG_LENGTH, &length));
 	char* message = (char*)alloca(length * sizeof(char));
 	glCall(glGetProgramInfoLog(program_id, length, &length, message));
-	std::cout << message << std::endl;
+	Logger::N3D_CORE_FATAL("{}", message);
 }
 
 unsigned int ShaderProgram::CompileShader(unsigned int type, const std::string& source) {
@@ -146,7 +145,7 @@ unsigned int ShaderProgram::CompileShader(unsigned int type, const std::string& 
 	glCall(glGetShaderiv(shader_id, GL_COMPILE_STATUS, &result));
 
 	if (!result) {
-		std::cout << "[Shader Compilation Error]" << std::endl;
+        Logger::N3D_CORE_FATAL("shader compilation error");
 		PrintShaderInfoLog(shader_id, type);
 		__debugbreak();
 	}
@@ -164,14 +163,14 @@ unsigned int ShaderProgram::CreateShader(ShaderSource shader) {
 	glCall(glLinkProgram(prg));
 	glCall(glGetProgramiv(prg, GL_LINK_STATUS, &link_status));
 	if (link_status != GL_TRUE) {
-		std::cout << "[Shader Linking Program Error]" << std::endl;
+        Logger::N3D_CORE_FATAL("shader program linking error");
 		PrintProgramInfoLog(prg);
 		__debugbreak();
 	}
 	glCall(glValidateProgram(prg));
 	glCall(glGetProgramiv(prg, GL_LINK_STATUS, &link_status));
 	if (link_status != GL_TRUE) {
-		std::cout << "[Shader Program Validation Error]" << std::endl;
+        Logger::N3D_CORE_FATAL("shader program Validation error");
 		PrintProgramInfoLog(prg);
 		__debugbreak();
 	}
@@ -188,9 +187,8 @@ int ShaderProgram::GetUniformLocation(std::string name) {
 		uniforms_cache[name] = uniform_location;
 	}
 	else uniform_location = uniforms_cache[name];
-	if (uniform_location == -1) 
-		std::cout << "Warning : the uniform names " << name << " location is -1" << std::endl;
-	return uniform_location;
+	if (uniform_location == -1) Logger::N3D_CORE_ERROR("uniform {} location is -1", name);
+    return uniform_location;
 }
 
 ShaderProgram::~ShaderProgram() {

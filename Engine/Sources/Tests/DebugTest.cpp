@@ -5,7 +5,7 @@
 DebugTest::DebugTest() { }
 
 float* RotateImage(float* data, int x, int y, int nb_c, bool anti) {
-	if (x != y) std::cerr << "warning : cube map face not a square" << std::endl;
+	if (x != y) N3D_LOG_WARN("cube map face not a square and I haven't implemented that path yet :3");
 	float* data2 = new float[x * y * nb_c];
 	for (int i = 0; i < x; ++i) {
 		for (int j = 0; j < y; ++j) {

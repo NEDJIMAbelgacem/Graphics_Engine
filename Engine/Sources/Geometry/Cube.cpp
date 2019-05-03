@@ -15,11 +15,9 @@ Cube::Cube(ShaderProgram* shader, glm::vec3 position, glm::vec3 size, std::strin
     this->vao = new VertexArray();
     Assimp::Importer importer;
 	const aiScene *scene = importer.ReadFile(obj_path, aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_GenSmoothNormals);
-    if (scene == nullptr || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || scene->mRootNode == nullptr)
-	{
-		std::cout << "ERROR::ASSIMP:: " << importer.GetErrorString() << std::endl;
-		__debugbreak();
-	}
+    if (scene == nullptr || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || scene->mRootNode == nullptr) 
+        N3D_LOG_FATAL("assimp asset loading error : {}", importer.GetErrorString());
+    
     int meshes_count = scene->mNumMeshes;
     int total_vertices_count = 0;
     int total_indexes_count = 0;

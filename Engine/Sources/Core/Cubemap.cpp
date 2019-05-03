@@ -19,17 +19,14 @@ Cubemap::Cubemap(std::string folder, std::string file) {
 		stbi_set_flip_vertically_on_load(flip);
 		unsigned char* data = stbi_load(file_name.c_str(), &width, &height, &bitsPerPixel, 0);
 		stbi_set_flip_vertically_on_load(false);
-		if (data == nullptr) {
-			std::cout << "Failed to load cube map from " << file_name << std::endl;
-			__debugbreak();
-		}
+		if (data == nullptr) N3D_LOG_FATAL("Failed to load cube map from {}", file_name);
 
 		if (suff == "up") data = RotateImage(data, width, height, bitsPerPixel, flip);
 		if (suff == "dn") data = RotateImage(data, width, height, bitsPerPixel, !flip);
 
 		glCall(glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data));
-
-		delete data;
+        if (suff == "up" || suff == "dn") delete [] data;
+        else stbi_image_free(data);
 	}
 
 	glCall(glBindTexture(GL_TEXTURE_CUBE_MAP, 0));
@@ -129,10 +126,7 @@ Cubemap::Cubemap(std::string file_name) {
 
 		stbi_image_free(data);
 	}
-	else
-	{
-		std::cout << "Failed to load HDR image." << std::endl;
-	}
+	else Logger::N3D_LOG_ERROR("Failed to load HDR image from {}", file_name);
 
 	// setup cubemap to render to and attach to framebuffer
 	unsigned int envCubemap;
@@ -181,10 +175,7 @@ Cubemap::Cubemap(std::string file_name) {
 	}
 	bool is_complete;
 	glCall(is_complete = glCheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE);
-	if (!is_complete) {
-		std::cout << "ERROR::FRAMEBUFFER:: Framebuffer is not complete!" << std::endl;
-		__debugbreak();
-	}
+	if (!is_complete) N3D_LOG_FATAL("Framebuffer construction at {} is not complete while loading {}", LINE_POSITION, file_name);
 	glCall(glBindFramebuffer(GL_FRAMEBUFFER, 0));
 	
 	glCall(glDeleteTextures(1, &hdrTexture));
@@ -263,7 +254,7 @@ Cubemap::Cubemap(Cubemap* cubemap) {
 }
 
 unsigned char* Cubemap::RotateImage(unsigned char* data, int x, int y, int nb_c, bool anti) {
-	if (x != y) std::cerr << "warning : cube map face not a square" << std::endl;
+	if (x != y) N3D_LOG_WARN("cube map face not a square and I haven't implemented that path yet :3");
 	unsigned char* data2 = new unsigned char[x * y * nb_c];
 	for (int i = 0; i < x; ++i) {
 		for (int j = 0; j < y; ++j) {

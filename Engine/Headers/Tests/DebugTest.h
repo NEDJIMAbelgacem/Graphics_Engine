@@ -2,6 +2,7 @@
 #include "Test.h"
 #include <map>
 #include <vector>
+#include "Logger.h"
 
 class DebugTest : public Test {
 private:

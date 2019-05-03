@@ -77,7 +77,6 @@ float* HeightMap::GenerateMap(int width, int height, int seed) {
             if (map[i * width + j] > max_height) max_height = map[i * width + j];
 		}
 	}
-    std::cout << "max_height " << max_height << std::endl;
 	delete map1;
 	return map;
 }

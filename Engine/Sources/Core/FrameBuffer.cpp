@@ -24,10 +24,7 @@ FrameBuffer::FrameBuffer() {
 	glCall(glBindTexture(GL_TEXTURE_2D, 0));
 
 	glCall(bool is_complete = glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE);
-	if (is_complete) {
-		std::cout << "ERROR::FRAMEBUFFER:: Framebuffer is not complete!" << std::endl;
-		__debugbreak();
-	}
+	if (is_complete) N3D_LOG_FATAL("Framebuffer construction at {} is not complete", LINE_POSITION);
 
 	glCall(glBindFramebuffer(GL_FRAMEBUFFER, 0));
 }

@@ -4,15 +4,13 @@
 #include "Core/VertexArray.h"
 #include "Core/VertexBuffer.h"
 #include "Core/IndexBuffer.h"
-
+#include "Logger.h"
 #include "ShaderComponents/SurfaceParameters.h"
 #include "ShaderComponents/PointLight.h"
 #include "AbstractClasses/Renderable.h"
-
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
-
 
 #define DEFAULT_CUBE_OBJ_PATH "Resources/Geometry/cube.obj"
 #define vertices_location 0

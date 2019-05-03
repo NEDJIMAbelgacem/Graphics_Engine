@@ -15,6 +15,7 @@
 #include "Geometry/Sphere.h"
 #include "Geometry/Cube.h"
 #include "Geometry/Plane.h"
+#include "Logger.h"
 
 const int mWidth = 800, mHeight = 600;
 
@@ -70,6 +71,7 @@ int main() {
         glfwSetCursorPosCallback(window, cursor_position_callback);
         glfwSetMouseButtonCallback(window, mouse_button_callback);
         InitImGui(window, "#version 430");
+        Logger::Init();
         
         glCall(glEnable(GL_MULTISAMPLE));
         glCall(glEnable(GL_CULL_FACE));

@@ -2,6 +2,7 @@
 #include "Core/Common.h"
 #include "Core/VertexArray.h"
 #include "Core/ShaderProgram.h"
+#include "Logger.h"
 
 class FrameBuffer {
 private:

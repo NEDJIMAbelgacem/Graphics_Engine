@@ -25,7 +25,7 @@ void AlphabetAtlas::Render(glm::vec3 pos, std::string str, float spacing, glm::v
             //shader->FillUniformMat4f("u_model", glm::translate(glm::identity<glm::mat4>(), pos));
 			m->SetModelMatrix(glm::translate(glm::identity<glm::mat4>(), pos));
             m->Render();
-		} else std::cout << "character \"" << c << "\" not found" << std::endl;
+		} else N3D_LOG_WARN("character \"{}\" not found", c);
 		pos.x += spacing;
 	}
 }

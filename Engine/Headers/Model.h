@@ -9,6 +9,7 @@
 #include "ShaderComponents/DirectionalLight.h"
 #include "ShaderComponents/SurfaceParameters.h"
 #include "AbstractClasses/Renderable.h"
+#include "Logger.h"
 
 class ModelComponent;
 class VertexArray;

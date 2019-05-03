@@ -245,8 +245,12 @@ static void cursor_position_callback(GLFWwindow* window, double xpos, double ypo
         glm::vec3 origin, ray;
         camera.GenerateRayFrom((float)mouse_x, (float)mouse_y, origin, ray);
         float cos_theta = glm::dot(ray, selection_ray);
-        float distance = selection_point_distance / cos_theta;
-        sphere_pos = origin + distance * ray;
+        float theta = glm::acos(cos_theta);
+        float sin_theta = glm::sin(theta);
+
+        glm::vec3 casted_ray = glm::vec3(ray.x, ray.y, ray.z);//glm::vec3(selection_ray.x * cos_theta, selection_ray.y, selection_ray.z * sin_theta);
+        float distance = selection_point_distance * cos_theta;
+        sphere_pos = origin + distance * casted_ray;
     }
     if (!mouse_enabled) return;
     Camera& camera = *camera_ptr;

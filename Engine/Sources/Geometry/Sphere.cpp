@@ -17,7 +17,7 @@ Sphere::Sphere(ShaderProgram* shader, glm::vec3 position, float radius) {
     int indexes_offset = 0;
     float* vertices = new float[3 * SPHERE_PHI_TILES_COUNT * (SPHERE_THETA_TILES_COUNT + 1)];
     float* normals = new float[3 * SPHERE_PHI_TILES_COUNT * (SPHERE_THETA_TILES_COUNT + 1)];
-    unsigned int* indexes = new unsigned int[6 * SPHERE_PHI_TILES_COUNT * SPHERE_THETA_TILES_COUNT * 2];
+    unsigned int* indexes = new unsigned int[6 * SPHERE_PHI_TILES_COUNT * SPHERE_THETA_TILES_COUNT];
     
     float theta_step = glm::pi<float>() / SPHERE_THETA_TILES_COUNT;
     float phi_step = 2.0f * glm::pi<float>() / SPHERE_PHI_TILES_COUNT;
@@ -58,7 +58,6 @@ Sphere::Sphere(ShaderProgram* shader, glm::vec3 position, float radius) {
     vao->AddBuffer(*vertices_vbo, vertices_layout);
     delete [] vertices;
 
-    // normals
     normals_vbo = new VertexBuffer(normals, vertices_offset * sizeof(float));
     BufferLayout normals_layout;
     normals_layout.AddElement<float>(3, normals_location);
@@ -120,7 +119,6 @@ bool Sphere::ray_intersection(glm::vec3 origin, glm::vec3 ray, float& depth) {
     float min = d1 < d2 ? d1 : d2;
     if (max < 0 || min < 0) return false;
     depth = min;
-    //intersection_point += position;
     return true;
 }
 

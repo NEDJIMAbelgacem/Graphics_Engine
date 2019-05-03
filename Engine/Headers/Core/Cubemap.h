@@ -5,8 +5,8 @@
 #include "Core/VertexBuffer.h"
 #include "stb_image.h"
 
-#define equirectangular2cubemap_shader_path "Resources/shaders/core/equirectangular2cubemap.shader"
-#define irradiance_shader_path "Resources/shaders/core/irradiance.shader"
+#define equirectangular2cubemap_shader_path "Shaders/Cubemap/equirectangular2cubemap.glsl"
+#define irradiance_shader_path "Shaders/Cubemap/irradiance.glsl"
 
 class ShaderProgram;
 

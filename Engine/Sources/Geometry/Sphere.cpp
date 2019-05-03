@@ -1,114 +1,72 @@
 #include "Geometry/Sphere.h"
 
-#include <assimp/Importer.hpp>
-#include <assimp/scene.h>
-#include <assimp/postprocess.h>
-
-Sphere::Sphere(ShaderProgram* shader, glm::vec3 position, float radius, std::string obj_path) {
+Sphere::Sphere(ShaderProgram* shader, glm::vec3 position, float radius) {
     this->shader = shader;
     this->SetLightColor(glm::vec3(1.0f));
     this->SetLightPosition(glm::vec3(0.0f, 100.0f, 100.0f));
     this->SetSurfaceParameters(0.0f, 1.0f, 1.0f);
-    this->SetModelMatrix(glm::mat4(1.0f));
     this->position = position;
     this->radius = radius;
     glm::mat4 m = glm::identity<glm::mat4>();
     m = glm::translate(m, glm::vec3(position));
     m = glm::scale(m, glm::vec3(radius));
     this->SetModelMatrix(m);
-
     this->vao = new VertexArray();
-    Assimp::Importer importer;
-	const aiScene *scene = importer.ReadFile(obj_path, aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_GenSmoothNormals);
-    if (scene == nullptr || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || scene->mRootNode == nullptr)
-	{
-		std::cout << "ERROR::ASSIMP:: " << importer.GetErrorString() << std::endl;
-		__debugbreak();
-	}
-    int meshes_count = scene->mNumMeshes;
-    int total_vertices_count = 0;
-    int total_indexes_count = 0;
-    for (int i = 0; i < meshes_count; ++i) {
-        total_vertices_count += scene->mMeshes[i]->mNumVertices;
-        total_indexes_count += 3 * scene->mMeshes[i]->mNumFaces;
-    }
-    float* vertices = new float[3 * total_vertices_count];
-    float* normals = new float[3 * total_vertices_count];
-    unsigned int* indexes = new unsigned int[total_indexes_count];
 
     int vertices_offset = 0;
     int indexes_offset = 0;
-    glm::vec3 min_c = glm::vec3(99999.0f);
-    glm::vec3 max_c = glm::vec3(-99999.0f);
-    for (int i = 0; i < meshes_count; ++i) {
-        aiMesh* mesh = scene->mMeshes[i];
-        int vertices_count = mesh->mNumVertices;
-        for (int i = 0; i < vertices_count; ++i) {
-		    vertices[vertices_offset + 3 * i] = mesh->mVertices[i].x;
-		    vertices[vertices_offset + 3 * i + 1] = mesh->mVertices[i].y;
-            vertices[vertices_offset + 3 * i + 2] = mesh->mVertices[i].z;
-            if (max_c[0] < mesh->mVertices[i].x) max_c[0] = mesh->mVertices[i].x;
-            if (min_c[0] > mesh->mVertices[i].x) min_c[0] = mesh->mVertices[i].x;
-            if (max_c[1] < mesh->mVertices[i].y) max_c[1] = mesh->mVertices[i].y;
-            if (min_c[1] > mesh->mVertices[i].y) min_c[1] = mesh->mVertices[i].y;
-            if (max_c[2] < mesh->mVertices[i].z) max_c[2] = mesh->mVertices[i].z;
-            if (min_c[2] > mesh->mVertices[i].z) min_c[2] = mesh->mVertices[i].z;
-        }
+    float* vertices = new float[3 * SPHERE_PHI_TILES_COUNT * (SPHERE_THETA_TILES_COUNT + 1)];
+    float* normals = new float[3 * SPHERE_PHI_TILES_COUNT * (SPHERE_THETA_TILES_COUNT + 1)];
+    unsigned int* indexes = new unsigned int[6 * SPHERE_PHI_TILES_COUNT * SPHERE_THETA_TILES_COUNT * 2];
+    
+    float theta_step = glm::pi<float>() / SPHERE_THETA_TILES_COUNT;
+    float phi_step = 2.0f * glm::pi<float>() / SPHERE_PHI_TILES_COUNT;
+    for (int theta_index = 0; theta_index <= SPHERE_THETA_TILES_COUNT; ++theta_index) {
+        for (int phi_index = 0; phi_index < SPHERE_PHI_TILES_COUNT; ++phi_index) {
+            float theta = theta_index * theta_step;
+            float phi = phi_index * phi_step;
+            float normal_x = glm::sin(theta) * glm::cos(phi);
+            float normal_y = glm::sin(theta) * glm::sin(phi);
+            float normal_z = glm::cos(theta);
 
-        for (int i = 0; i < vertices_count; ++i) {
-		    normals[vertices_offset + 3 * i] = mesh->mNormals[i].x;
-		    normals[vertices_offset + 3 * i + 1] = mesh->mNormals[i].y;
-            normals[vertices_offset + 3 * i + 2] = mesh->mNormals[i].z;
-        }
+            normals[vertices_offset] = normal_x;
+            normals[vertices_offset + 1] = normal_y;
+            normals[vertices_offset + 2] = normal_z;
+            vertices[vertices_offset] = normal_x;
+            vertices[vertices_offset + 1] = normal_y;
+            vertices[vertices_offset + 2] = normal_z;
+            vertices_offset += 3;
+            if (theta_index == SPHERE_THETA_TILES_COUNT) continue;
 
-        int faces_count = mesh->mNumFaces;
-        for (int i = 0; i < faces_count; ++i) {
-            indexes[indexes_offset + 3 * i] = mesh->mFaces[i].mIndices[0];
-            indexes[indexes_offset + 3 * i + 1] = mesh->mFaces[i].mIndices[1];
-            indexes[indexes_offset + 3 * i + 2] = mesh->mFaces[i].mIndices[2];
-        }
-
-        vertices_offset += 3 * vertices_count;
-        indexes_offset += 3 * faces_count;
-    }
-    std::cout << "before normalisation : " << std::endl;
-    std::cout << "min : " << min_c.x << " " << min_c.y << " " << min_c.z << std::endl;
-    std::cout << "min : " << max_c.x << " " << max_c.y << " " << max_c.z << std::endl;
-
-    // normalize vertice coordinates
-    // normalized vertice coordinate are in [-1.0f, 1.0f] space and centered around vec3(0.0f)
-    glm::vec3 min_c2 = glm::vec3(99999.0f);
-    glm::vec3 max_c2 = glm::vec3(-99999.0f);
-    glm::vec3 center_offset = (max_c + min_c) / 2.0f;
-    glm::vec3 size_v = max_c - min_c;
-    for (int i = 0; i < total_vertices_count; ++i) {
-        vertices[3 * i] = (vertices[3 * i] - center_offset[0]) / size_v[0] * 2.0f;
-        vertices[3 * i + 1] = (vertices[3 * i + 1] - center_offset[1]) / size_v[1] * 2.0f;
-        vertices[3 * i + 2] = (vertices[3 * i + 2] - center_offset[2]) / size_v[2] * 2.0f;
-        for (int j = 0; j < 3; ++j) {
-            if (vertices[3 * i + j] < min_c2[j]) min_c2[j] = vertices[3 * i + j];
-            if (vertices[3 * i + j] > max_c2[j]) max_c2[j] = vertices[3 * i + j];
+            int index1 = theta_index * SPHERE_PHI_TILES_COUNT + phi_index;
+            int index2 = (theta_index + 1) * SPHERE_PHI_TILES_COUNT + phi_index;
+            int index3 = (theta_index + 1) * SPHERE_PHI_TILES_COUNT + (phi_index + 1) % SPHERE_PHI_TILES_COUNT;
+            int index4 = theta_index * SPHERE_PHI_TILES_COUNT + (phi_index + 1) % SPHERE_PHI_TILES_COUNT;
+            indexes[indexes_offset] = index1;
+            indexes[indexes_offset + 1] = index2;
+            indexes[indexes_offset + 2] = index3;
+            indexes[indexes_offset + 3] = index3;
+            indexes[indexes_offset + 4] = index4;
+            indexes[indexes_offset + 5] = index1;
+            indexes_offset += 6;
         }
     }
-    std::cout << "before normalisation : " << std::endl;
-    std::cout << "min : " << min_c2.x << " " << min_c2.y << " " << min_c2.z << std::endl;
-    std::cout << "min : " << max_c2.x << " " << max_c2.y << " " << max_c2.z << std::endl;
 
     vertices_vbo = new VertexBuffer(vertices, vertices_offset * sizeof(float));
     BufferLayout vertices_layout;
     vertices_layout.AddElement<float>(3, vertices_location);
     vao->AddBuffer(*vertices_vbo, vertices_layout);
-    delete vertices;
+    delete [] vertices;
 
     // normals
     normals_vbo = new VertexBuffer(normals, vertices_offset * sizeof(float));
     BufferLayout normals_layout;
     normals_layout.AddElement<float>(3, normals_location);
     vao->AddBuffer(*normals_vbo, normals_layout);
-    delete normals;
+    delete [] normals;
 
     this->ibo = new IndexBuffer(indexes, indexes_offset);
-    delete indexes;
+    delete [] indexes;
 }
 
 Sphere::~Sphere() {

@@ -35,6 +35,7 @@ include_directories(Engine/Headers/
                     Engine/Vendor/glad/include/
                     Engine/Vendor/glfw/include/
                     Engine/Vendor/imgui/
+                    Engine/Vendor/spdlog/
                     Engine/Vendor/glm/
                     Engine/Vendor/stb/)
 

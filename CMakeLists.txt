@@ -47,7 +47,8 @@ file(GLOB PROJECT_SOURCES Engine/Sources/*.cpp
                           Engine/Sources/Tests/*.cpp
                           Engine/Sources/Core/*.cpp
                           Engine/Sources/Geometry/*.cpp
-                          Engine/Sources/ShaderComponents/*.cpp)
+                          Engine/Sources/ShaderComponents/*.cpp
+                          Engine/Sources/Window/*.cpp)
 file(GLOB PROJECT_SHADERS Engine/Shaders/*.shader)
 file(GLOB PROJECT_CONFIGS CMakeLists.txt
                           Readme.md

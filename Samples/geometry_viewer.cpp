@@ -60,7 +60,7 @@ int main() {
 		// Make the window's context current
 		glfwMakeContextCurrent(window);
         gladLoadGL();
-		//glfwSwapInterval(1);
+		//glfwSwapInterval(0);
 
 		// Display opengl current version
 		std::cout << "opengl version : " << glGetString(GL_VERSION) << std::endl;

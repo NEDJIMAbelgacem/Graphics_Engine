@@ -1,6 +1,10 @@
 #pragma once
 #include "Core/Common.h"
 #include "Logger.h"
+#include "Window/Event.h"
+#include "Window/ApplicationEvent.h"
+#include "Window/KeyEvent.h"
+#include "Window/MouseEvent.h"
 
 struct WindowProps {
     std::string Title;
@@ -12,11 +16,14 @@ struct WindowProps {
 };
 
 class Window {
+    using EventCallbackFn = std::function<void(Event&)>;
 private:
     struct WindowData {
         std::string Title;
         unsigned int Width, Height;
         bool VSync;
+
+        EventCallbackFn EventCallback;
     };
 
     WindowData m_Data;
@@ -30,7 +37,8 @@ public:
     unsigned int GetWidth();
     unsigned int GetHeight();
     
-    void SetEventCallback(const EventCallbackFn& callback);
+    void SetEventCallback(const EventCallbackFn& callback) { m_Data.EventCallback = callback; }
+
     void SetVSync(bool enabled);
     bool IsVSync();
 };

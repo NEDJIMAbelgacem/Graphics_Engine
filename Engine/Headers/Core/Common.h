@@ -15,6 +15,8 @@
 #include <unordered_map>
 #include <unordered_set>
 
+#include "Logger.h"
+
 #define LINE_POSITION std::string() + __FILE__ + ":" + std::to_string(__LINE__)
 #define ASSERT(x) if (!(x)) __debugbreak();
 #define glCall(x) GLClearError();\

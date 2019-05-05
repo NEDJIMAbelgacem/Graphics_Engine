@@ -7,6 +7,7 @@ Sphere::Sphere(ShaderProgram* shader, glm::vec3 position, float radius) {
     this->SetSurfaceParameters(0.0f, 1.0f, 1.0f);
     this->position = position;
     this->radius = radius;
+
     glm::mat4 m = glm::identity<glm::mat4>();
     m = glm::translate(m, glm::vec3(position));
     m = glm::scale(m, glm::vec3(radius));

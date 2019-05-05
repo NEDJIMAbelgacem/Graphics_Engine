@@ -6,9 +6,9 @@
 #include "Window/KeyEvent.h"
 #include "Window/MouseEvent.h"
 #include "Window/Layer.h"
-#include "imgui/imgui.h"
-#include "imgui/imgui_impl_glfw.h"
-#include "imgui/imgui_impl_opengl3.h"
+#include "imgui.h"
+#include "examples/imgui_impl_glfw.h"
+#include "examples/imgui_impl_opengl3.h"
 
 class ImGuiLayer : public Layer {
 public:

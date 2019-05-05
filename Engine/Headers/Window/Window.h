@@ -31,6 +31,7 @@ private:
 public:
     Window(const WindowProps& props);
     ~Window();
+    inline GLFWwindow* GetNativeWindow() {return m_Window; }
 
     void OnUpdate();
 

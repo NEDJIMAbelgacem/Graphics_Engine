@@ -15,9 +15,7 @@ Window::Window(const WindowProps& props) {
     if (!s_GLFWInitialized) {
         // TODO: glfwTerminate on system shutdown
         int success = glfwInit();
-        if (!success) {
-            N3D_LOG_FATAL("GLFW Fatal Error : Could not intialize GLFW!");
-        }
+        if (!success) N3D_LOG_FATAL("GLFW Fatal Error : Could not intialize GLFW!");
         glfwSetErrorCallback(GLFWErrorCallback);
         s_GLFWInitialized = true;
     }
@@ -29,43 +27,39 @@ Window::Window(const WindowProps& props) {
     glfwSetWindowUserPointer(m_Window, &m_Data);
     SetVSync(true);
 
-    // Set GLFW callbacks
+    // resize event
     glfwSetWindowSizeCallback(m_Window, [](GLFWwindow* window, int width, int height) {
         WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
         data.Width = width;
         data.Height = height;
 
-        // event system stuff
         WindowResizeEvent event(width, height);
         data.EventCallback(event);
     });
 
-    glfwSetWindowCloseCallback(m_Window, [](GLFWwindow* window)
-    {
+    // close event
+    glfwSetWindowCloseCallback(m_Window, [](GLFWwindow* window) {
         WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
         
         WindowCloseEvent event;
         data.EventCallback(event);
     });
 
+    // key events
     glfwSetKeyCallback(m_Window, [](GLFWwindow* window, int key, int scancode, int action, int mods) {
         WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
-        // key events
         switch (action) {
-            case GLFW_PRESS: 
-            {
+            case GLFW_PRESS: {
                 KeyPressedEvent event(key, 0);
                 data.EventCallback(event);
                 break;
             }
-            case GLFW_RELEASE:
-            {
+            case GLFW_RELEASE: {
                 KeyReleasedEvent event(key);
                 data.EventCallback(event);
                 break;
             }
-            case GLFW_REPEAT:
-            {
+            case GLFW_REPEAT: {
                 KeyPressedEvent event(key, 1);
                 data.EventCallback(event);
                 break;
@@ -73,6 +67,7 @@ Window::Window(const WindowProps& props) {
         }
     });
 
+    // key typed exent
     glfwSetCharCallback(m_Window, [](GLFWwindow* window, unsigned int keycode) {
         WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
 
@@ -80,19 +75,17 @@ Window::Window(const WindowProps& props) {
         data.EventCallback(event);
     });
 
+    // mouse button event
     glfwSetMouseButtonCallback(m_Window, [](GLFWwindow* window, int button, int action, int mods) {
         WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
 
-        switch (action)
-        {
-            case GLFW_PRESS:
-            {
+        switch (action) {
+            case GLFW_PRESS: {
                 MouseButtonPressedEvent event(button);
                 data.EventCallback(event);
                 break;
             }
-            case GLFW_RELEASE:
-            {
+            case GLFW_RELEASE: {
                 MouseButtonReleasedEvent event(button);
                 data.EventCallback(event);
                 break;
@@ -100,6 +93,7 @@ Window::Window(const WindowProps& props) {
         }
     });
 
+    // scroll event
     glfwSetScrollCallback(m_Window, [](GLFWwindow* window, double xOffset, double yOffset) {
         WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
 
@@ -107,6 +101,7 @@ Window::Window(const WindowProps& props) {
         data.EventCallback(event);
     });
 
+    // cursor move event
     glfwSetCursorPosCallback(m_Window, [](GLFWwindow* window, double xPos, double yPos) {
         WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
 

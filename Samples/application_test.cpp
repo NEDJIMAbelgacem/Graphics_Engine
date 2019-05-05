@@ -6,8 +6,7 @@ Application* CreateApplication() {
     return new Application();
 }
 
-int main(int argc, char** argv)
-{
+int main(int argc, char** argv) {
 	Logger::Init();
 	N3D_LOG_TRACE("Initialized Log!");
 	N3D_LOG_TRACE("Hello! Var={0}");

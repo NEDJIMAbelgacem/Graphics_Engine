@@ -3,9 +3,11 @@
 #include "Window.h"
 #include "Window/Event.h"
 #include "Window/ApplicationEvent.h"
+#include "Window/LayerStack.h"
+#include "Window/Layer.h"
+#include "Window/ImGuiLayer.h"
 
-class Application
-{
+class Application {
 public:
     Application();
     virtual ~Application();
@@ -14,8 +16,8 @@ public:
 
     void OnEvent(Event& e);
 
-    //void PushLayer(Layer* layer);
-    //void PushOverlay(Layer* layer);
+    void PushLayer(Layer* layer);
+    void PushOverlay(Layer* layer);
 
     inline Window& GetWindow() { return *m_Window; }
 
@@ -24,9 +26,10 @@ private:
     bool OnWindowClose(WindowCloseEvent& e);
 
     std::unique_ptr<Window> m_Window;
-    //ImGuiLayer* m_ImGuiLayer;
+    LayerStack m_LayerStack;
+    ImGuiLayer* m_ImGuiLayer;
+
     bool m_Running = true;
-    //LayerStack m_LayerStack;
 private:
     static Application* s_Instance;
 };

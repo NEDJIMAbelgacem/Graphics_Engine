@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Core/Common.h"
-#include "Window/Event.h"
+#include "Window/Events/Event.h"
 
 class Layer {
 public:

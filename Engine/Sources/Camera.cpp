@@ -35,12 +35,13 @@ void Camera::ProcessKeyboard(int direction, float deltaTime) {
 	float velocity = MovementSpeed * deltaTime;
 	if (direction == GLFW_KEY_UP)
 		cameraPos += cameraFront * velocity;
-	if (direction == GLFW_KEY_DOWN)
+	else if (direction == GLFW_KEY_DOWN)
 		cameraPos -= cameraFront * velocity;
-	if (direction == GLFW_KEY_LEFT)
+	else if (direction == GLFW_KEY_LEFT)
 		cameraPos -= cameraRight * velocity;
-	if (direction == GLFW_KEY_RIGHT)
+	else if (direction == GLFW_KEY_RIGHT)
 		cameraPos += cameraRight * velocity;
+    else return;
 	updateCameraVectors();
 }
 

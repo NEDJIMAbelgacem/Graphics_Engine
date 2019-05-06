@@ -78,20 +78,20 @@ int main() {
         camera.SetPosition(glm::vec3(0.0f, 1000.0f, 1000.0f));
 
         // imgui passed params
-        float camera_speed = 3000.0f;
-        float reflectivity = 0.5f;
-        float shineDamper = 0.5;
-        float diffuseFactor = 0.5;
-        glm::vec3 light_color(1.0f);
-        glm::vec3 light_dir(0.0f, 1.0f, 0.0f);
+        // float camera_speed = 3000.0f;
+        // float reflectivity = 0.5f;
+        // float shineDamper = 0.5;
+        // float diffuseFactor = 0.5;
+        // glm::vec3 light_color(1.0f);
+        // glm::vec3 light_dir(0.0f, 1.0f, 0.0f);
 
-        DebugTest test;
-        test.AddFloatSlider("camera speed", &camera_speed, 0.0f, 10000.0f);
-        test.AddFloatSlider("model reflectivity", &reflectivity);
-        test.AddFloatSlider("model shineDamper", &shineDamper);
-        test.AddFloatSlider("model diffuseFactor", &diffuseFactor);
-        test.Add3FloatSlider("light color", &light_color, 0.0f, 1.0f);
-        test.Add3FloatSlider("light direction", &light_dir, -1.0f, 1.0f);
+        // DebugTest test;
+        // test.AddFloatSlider("camera speed", &camera_speed, 0.0f, 10000.0f);
+        // test.AddFloatSlider("model reflectivity", &reflectivity);
+        // test.AddFloatSlider("model shineDamper", &shineDamper);
+        // test.AddFloatSlider("model diffuseFactor", &diffuseFactor);
+        // test.Add3FloatSlider("light color", &light_color, 0.0f, 1.0f);
+        // test.Add3FloatSlider("light direction", &light_dir, -1.0f, 1.0f);
 
         float near_plane = 0.1f, far_plane = 4000.0f;
         float field_of_view = glm::radians(90.0f);
@@ -99,8 +99,8 @@ int main() {
 
         glm::mat4 proj = glm::perspective(field_of_view, aspect_ratio, near_plane, far_plane);
         ShaderProgram sky_box_shader(skybox_shader_path);
-
         ShaderProgram model_shader = ShaderProgram(model_shader_path);
+        
         Model model_object(model_path, &model_shader);
         model_shader.FillUniformMat4f("u_proj", proj);
         glm::mat4 object_model_matrix = glm::scale(glm::mat4(1.0f), glm::vec3(100, 100, 100));//glm::translate(glm::mat4(100.0f), glm::vec3(100.0f));
@@ -135,11 +135,11 @@ int main() {
             sky_box.Draw(view_matrix, proj);
             //glDepthFunc(GL_LESS);
 
-            // imgui stuff
-            glm::vec3 pos = camera.getCameraPosition();
-            test.AddText("camera pos", std::to_string(pos.x) + " " + std::to_string(pos.y) + " " + std::to_string(pos.z));
-            test.Display();
-            test.Render();
+            // // imgui stuff
+            // glm::vec3 pos = camera.getCameraPosition();
+            // test.AddText("camera pos", std::to_string(pos.x) + " " + std::to_string(pos.y) + " " + std::to_string(pos.z));
+            // test.Display();
+            // test.Render();
 
             // Flip Buffers and Draw
             glfwSwapBuffers(window);

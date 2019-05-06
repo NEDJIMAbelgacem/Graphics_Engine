@@ -1,10 +1,10 @@
 #pragma once
 #include "Core/Common.h"
 #include "Logger.h"
-#include "Window/Event.h"
-#include "Window/ApplicationEvent.h"
-#include "Window/KeyEvent.h"
-#include "Window/MouseEvent.h"
+#include "Window/Events/Event.h"
+#include "Window/Events/ApplicationEvent.h"
+#include "Window/Events/KeyEvent.h"
+#include "Window/Events/MouseEvent.h"
 
 struct WindowProps {
     std::string Title;
@@ -31,7 +31,7 @@ private:
 public:
     Window(const WindowProps& props);
     ~Window();
-    inline GLFWwindow* GetNativeWindow() {return m_Window; }
+    inline GLFWwindow* GetNativeWindow() { return m_Window; }
 
     void OnUpdate();
 

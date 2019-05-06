@@ -1,13 +1,24 @@
 #pragma once
+
 #include "Core/Common.h"
-#include "Window.h"
-#include "Window/Event.h"
-#include "Window/ApplicationEvent.h"
+#include "Window/Window.h"
 #include "Window/LayerStack.h"
 #include "Window/Layer.h"
 #include "Window/ImGuiLayer.h"
+#include "Window/Events/Event.h"
+#include "Window/Events/ApplicationEvent.h"
 
 class Application {
+private:
+    static Application* s_Instance;
+
+    std::unique_ptr<Window> m_Window;
+    LayerStack m_LayerStack;
+    ImGuiLayer* m_ImGuiLayer;
+
+    bool m_Running = true;
+public:
+    static float delta_time;
 public:
     Application();
     virtual ~Application();
@@ -25,14 +36,16 @@ public:
 private:
     bool OnWindowClose(WindowCloseEvent& e);
 
-    std::unique_ptr<Window> m_Window;
-    LayerStack m_LayerStack;
-    ImGuiLayer* m_ImGuiLayer;
-
-    bool m_Running = true;
-private:
-    static Application* s_Instance;
+    virtual bool OnMouseMoved(MouseMovedEvent& e) { return false; }
+    virtual bool OnMouseScrolled(MouseScrolledEvent& e) { return false; }
+    virtual bool OnMouseButtonPressed(MouseButtonPressedEvent& e) { return false; }
+    virtual bool OnMouseButtonReleased(MouseButtonReleasedEvent& e) { return false; }
+    virtual bool OnKeyPressed(KeyPressedEvent& e) { return false; }
+    virtual bool OnKeyReleased(KeyReleasedEvent& e) { return false; }
+    virtual bool OnKeyTyped(KeyTypedEvent& e) { return false; }
+    virtual bool OnWindowResize(WindowResizeEvent& e) { return false; }
+    // TODO : implement other window events
 };
 
 // To be defined in CLIENT
-//Application* CreateApplication();
+Application* CreateApplication();

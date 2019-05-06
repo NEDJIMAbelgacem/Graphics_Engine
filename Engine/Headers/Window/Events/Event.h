@@ -55,3 +55,5 @@ private:
 };
 
 inline std::ostream& operator<<(std::ostream& os, const Event& e) { return os << e.ToString(); }
+
+#define BIND_EVENT_FN(x) std::bind(&x, this, std::placeholders::_1)

@@ -11,9 +11,11 @@ out vec3 v_fragPos;
 uniform mat4 u_model;
 uniform mat4 u_view;
 uniform mat4 u_proj;
+
 uniform int u_tiles_per_side;
 uniform int u_vertices_per_tile;
 uniform float u_tile_size;
+
 uniform int u_isClipEnabled;
 uniform vec4 u_clipPlane;
 
@@ -145,7 +147,8 @@ void main() {
 	vec3 reflVect = reflect(-lightDir, norm);
 	
 	// diffuse light
-	float f = (v_fragPos.y / u_height_amplitude + 1.0f) * 0.5;
+	float f = (v_fragPos.y / u_height_amplitude + 1.0f) * 0.75;
+	// float f = 1.0;
 	vec4 diffuseL = u_material.diffuseFactor * pow(dot(norm, lightDir), 1) * mix(texture(u_material.diffuseMaps[0], v_texCoords), texture(u_material.diffuseMaps[0], v_texCoords), smoothstep(0.4, 0.6f, f));
 	// specular light
 	vec4 specularL = pow(max(dot(reflVect, toCamera), 0.0f), u_material.shineDamper) * texture(u_material.diffuseMaps[0], v_texCoords);

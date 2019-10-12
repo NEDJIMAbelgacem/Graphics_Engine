@@ -22,8 +22,8 @@ float* RotateImage(float* data, int x, int y, int nb_c, bool anti) {
 }
 
 void SaveTo(std::string image_path) {
-	const int width = 800;
-	const int height = 600;
+	const int width = WINDOW_WIDTH;
+	const int height = WINDOW_HEIGHT;
 	float* data = new float[3 * width * height];
 	glCall(glReadPixels(-1, -1, width, height, GL_RGB, GL_UNSIGNED_BYTE, data));
 	//float* data = RotateImage(data, width, height, 3);

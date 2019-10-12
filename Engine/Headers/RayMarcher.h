@@ -3,32 +3,33 @@
 #include "Core/ShaderProgram.h"
 #include "Core/VertexArray.h"
 #include "SkyBox.h"
+#include "GameObject.h"
 
-class RayMarcher {
+class RayMarcher : public GameObject {
 private:
-	ShaderProgram* shader;
+	// ShaderProgram* shader;
 	VertexArray* vao;
 
-	glm::mat4 projection_matrix;
-	glm::mat4 view_matrix;
-	glm::mat4 inv_proj_view;
-	float near_plane, far_plane;
-	float movement_factor = 0.0f;
+	// glm::mat4 projection_matrix;
+	// glm::mat4 view_matrix;
+	// glm::mat4 inv_proj_view;
+	// float near_plane, far_plane;
+	float movement_factor = 2.0f;
 	float movement_speed = 0.05f;
 	bool hdr = false;
 
-	glm::vec3 camera_pos;	
-	glm::vec3 sun_pos;
+	// glm::vec3 camera_pos;	
+	// glm::vec3 sun_pos;
 	int skybox_slot = -1;
 	int irradiance_map_slot = -1;
 public:
 	RayMarcher(std::string shader_path = "resources/shaders/RayTracing/raymarcher_scene1.shader");
 	~RayMarcher();
 
-	void SetCameraPos(glm::vec3 pos);
-	void SetProjectionMatrix(glm::mat4 projection);
-	void SetViewMatrix(glm::mat4 view);
-	void SetNearFarPlanes(float near_plane, float far_plane);
+	// void SetCameraPos(glm::vec3 pos);
+	// void SetProjectionMatrix(glm::mat4 projection);
+	// void SetViewMatrix(glm::mat4 view);
+	// void SetNearFarPlanes(float near_plane, float far_plane);
 	void SetSunPosition(glm::vec3 pos);
 	void SetHDR(bool hdr);
 

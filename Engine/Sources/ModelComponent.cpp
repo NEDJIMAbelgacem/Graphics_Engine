@@ -18,13 +18,12 @@ ModelComponent::ModelComponent(std::string directory, const aiMesh* mesh, const 
 	float* bitangent = nullptr;
 	unsigned int* indexes = nullptr;
     
+    glm::vec3 max = glm::vec3(-99999.0f);
+    glm::vec3 min = glm::vec3( 99999.0f);
     // vertices
     vertices = new float[3 * vertices_count];
-	for (unsigned int i = 0; i < vertices_count; ++i) {
-		vertices[3 * i] = mesh->mVertices[i].x;
-		vertices[3 * i + 1] = mesh->mVertices[i].y;
-		vertices[3 * i + 2] = mesh->mVertices[i].z;
-	}
+	for (unsigned int i = 0; i < 3 * vertices_count; ++i) 
+        vertices[i] = mesh->mVertices[i / 3][i % 3];
     vertices_vbo = new VertexBuffer(vertices, 3 * vertices_count * sizeof(float));
     BufferLayout vertices_layout;
     vertices_layout.AddElement<float>(3, vertices_location);

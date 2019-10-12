@@ -187,7 +187,7 @@ int ShaderProgram::GetUniformLocation(std::string name) {
 		uniforms_cache[name] = uniform_location;
 	}
 	else uniform_location = uniforms_cache[name];
-	if (uniform_location == -1) Logger::N3D_CORE_ERROR("uniform {} location is -1", name);
+	if (uniform_location == -1) Logger::N3D_CORE_ERROR("uniform {} location is -1 when using shader {}", name, this->shader_path);
     return uniform_location;
 }
 

@@ -3,9 +3,9 @@
 #include <GLFW/glfw3.h>
 
 // Standard Headers
-#include "imgui/imgui.h"
-#include "imgui/imgui_impl_glfw.h"
-#include "imgui/imgui_impl_opengl3.h"
+// #include "imgui/imgui.h"
+// #include "imgui/imgui_impl_glfw.h"
+// #include "imgui/imgui_impl_opengl3.h"
 
 #include "Core/Common.h"
 #include "Core/ShaderProgram.h"
@@ -16,7 +16,7 @@
 #include "SkyBox.h"
 #include "Geometry/Cube.h"
 
-const int mWidth = 800, mHeight = 600;
+const int mWidth = WINDOW_WIDTH, mHeight = WINDOW_HEIGHT;
 
 void InitImGui(GLFWwindow* window, const char* glsl_version);
 

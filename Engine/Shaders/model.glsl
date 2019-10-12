@@ -1,5 +1,5 @@
 #shader vertex
-#version 330 core
+#version 430 core
 
 layout(location = 0) in vec3 verticeCoords;
 layout(location = 1) in vec2 verticeTexture;
@@ -31,12 +31,7 @@ void main() {
 }
 
 #shader fragment
-#version 330 core
-
-uniform int ambientMaps[8];
-uniform int diffuseMaps[8];
-uniform int specularMaps[8];
-uniform int heightMaps[8];
+#version 430 core
 
 struct Material {
 	sampler2D ambientMaps[7];
@@ -68,12 +63,12 @@ void main() {
 
     vec4 material_texel = texture(u_material.materialTexture, v_texCoords);
 	// ambient light
-	vec4 ambientL = 0.1 * material_texel;
+	vec4 ambientL =u_lightColor * material_texel;
 	// diffuse light
-	vec4 diffuseL = max(dot(norm, lightDir), 0.0f) * material_texel;
+	vec4 diffuseL = 1.0f * max(dot(norm, lightDir), 0.0f) * material_texel;//texture(u_material.diffuseMaps[0], v_texCoords);
 	// specular light
-	vec4 specularL = pow(max(dot(reflVect, toCamera), 0.0f), 1) * material_texel;//texture(u_material.specularMaps[0], v_texCoords);
+	vec4 specularL = pow(max(dot(reflVect, toCamera), 0.0f), 32) * material_texel;//texture(u_material.specularMaps[0], v_texCoords);
 	
-	fragColor = normalize(((ambientL + specularL + specularL) * vec4(u_lightColor, 1.0f)));
-    //fragColor = vec4(vec3(1.0f);
+	fragColor = material_texel;//(0.1 * ambientL + 0.9 * (diffuseL + specularL)) * vec4(u_lightColor, 1.0f);
+    //fragColor = vec4(1.0f);
 }

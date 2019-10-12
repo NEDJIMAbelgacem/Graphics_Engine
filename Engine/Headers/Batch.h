@@ -1,9 +1,6 @@
 #pragma once
 #include "Core/Common.h"
-#include "Model.h"
-
-class Model;
-class VertexBuffer;
+#include "Core/VertexBuffer.h"
 
 class Batch {
 private:

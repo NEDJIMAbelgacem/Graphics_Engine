@@ -1,10 +1,10 @@
 #pragma once
 #include "Core/Common.h"
 #include "Logger.h"
-#include "Window/Events/Event.h"
-#include "Window/Events/ApplicationEvent.h"
-#include "Window/Events/KeyEvent.h"
-#include "Window/Events/MouseEvent.h"
+#include "Events/Event.h"
+#include "Events/ApplicationEvent.h"
+#include "Events/KeyEvent.h"
+#include "Events/MouseEvent.h"
 
 struct WindowProps {
     std::string Title;

@@ -4,9 +4,6 @@
 
 AlphabetAtlas::AlphabetAtlas(std::string models_path, ShaderProgram* shader) {
     this->shader = shader;
-    this->SetLightColor(glm::vec3(1.0f));
-    this->SetLightDirection(glm::vec3(0.0f, -1.0f, -1.0f));
-    this->SetSurfaceParameters(0.0f, 1.0f, 1.0f);
 
 	std::ifstream input(EntriesFile, std::ifstream::in);
 	int lines_count;
@@ -23,7 +20,7 @@ void AlphabetAtlas::Render(glm::vec3 pos, std::string str, float spacing, glm::v
 		if (chars_models.find(c) != chars_models.end()) {
 			Model* m = chars_models[c];
             //shader->FillUniformMat4f("u_model", glm::translate(glm::identity<glm::mat4>(), pos));
-			m->SetModelMatrix(glm::translate(glm::identity<glm::mat4>(), pos));
+			// m->SetModelMatrix(glm::translate(glm::identity<glm::mat4>(), pos));
             m->Render();
 		} else N3D_LOG_WARN("character \"{}\" not found", c);
 		pos.x += spacing;

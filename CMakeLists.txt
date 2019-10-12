@@ -46,8 +46,12 @@ file(GLOB IMGUI_SOURCES Engine/Vendor/imgui/*.cpp
 
 file(GLOB PROJECT_HEADERS Engine/Headers/*.hpp)
 file(GLOB PROJECT_SOURCES Engine/Sources/*.cpp
+                          Engine/Main/*.cpp
+                          Engine/Sources/Layers/*.cpp
                           Engine/Sources/Tests/*.cpp
+                          Engine/Sources/Systems/*.cpp
                           Engine/Sources/Core/*.cpp
+                          Engine/Sources/Systems/*.cpp
                           Engine/Sources/Geometry/*.cpp
                           Engine/Sources/ShaderComponents/*.cpp
                           Engine/Sources/Window/*.cpp)
@@ -68,6 +72,6 @@ source_group("Vendors" FILES ${VENDORS_SOURCES})
 add_definitions(-DGLM_ENABLE_EXPERIMENTAL -DIMGUI_IMPL_OPENGL_LOADER_GLAD)
 add_definitions(-DGLFW_INCLUDE_NONE -DPROJECT_SOURCE_DIR=\"${PROJECT_SOURCE_DIR}\")
 
-add_executable(${PROJECT_NAME} "${PROJECT_SOURCE_DIR}/Samples/model_viewer_app.cpp" ${PROJECT_SOURCES} ${PROJECT_HEADERS} ${PROJECT_SHADERS} ${PROJECT_CONFIGS} ${VENDORS_SOURCES} ${IMGUI_SOURCES})
+add_executable(${PROJECT_NAME} "${PROJECT_SOURCE_DIR}/Samples/terrain_viewer_app.cpp" ${PROJECT_SOURCES} ${PROJECT_HEADERS} ${PROJECT_SHADERS} ${PROJECT_CONFIGS} ${VENDORS_SOURCES} ${IMGUI_SOURCES})
 target_link_libraries(${PROJECT_NAME} assimp glfw ${GLFW_LIBRARIES} ${GLAD_LIBRARIES})
 set_target_properties(${PROJECT_NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${PROJECT_NAME})

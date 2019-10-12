@@ -3,8 +3,8 @@
 
 layout(location = 0) in vec2 pos;
 
-uniform mat4 u_proj_matrix;
-uniform mat4 u_view_matrix;
+uniform mat4 u_proj;
+uniform mat4 u_view;
 uniform float u_near;
 uniform float u_far;
 
@@ -15,7 +15,7 @@ out vec3 v_ray;
 
 void main() {
 	gl_Position = vec4(pos, 0.0, 1.0);
-	mat4 invprojview = inverse(u_proj_matrix * u_view_matrix);
+	mat4 invprojview = inverse(u_proj * u_view);
 	v_origin = (invprojview * (vec4(pos, -1.0, 1.0) * u_near)).xyz;
 	v_ray = (invprojview * vec4(pos * (u_far - u_near), u_far + u_near, u_far - u_near)).xyz;
 }
@@ -30,8 +30,8 @@ in vec3 v_ray;
 
 out vec4 fragColor;
 
-uniform mat4 u_proj_matrix;
-uniform mat4 u_view_matrix;
+uniform mat4 u_proj;
+uniform mat4 u_view;
 uniform vec3 u_cameraPos;
 uniform float u_near;
 uniform float u_far;
@@ -43,12 +43,12 @@ uniform float u_MinRad2;
 uniform int u_iterations;
 uniform float u_bailout;
 
-float max_distance = u_raymarching_max_distance;
-float min_distance = u_raymarching_min_distance;
-int max_steps = u_raymarching_max_steps;
+float max_distance = 1000.0f;//u_raymarching_max_distance;
+float min_distance = 0.001f;//u_raymarching_min_distance;
+int max_steps = 500;//u_raymarching_max_steps;
 
-const int Iterations = u_iterations;
-float Bailout = u_bailout;
+const int Iterations = 100;//u_iterations;
+float Bailout = 3000.0f;//u_bailout;
 float Power = 8.0f;
 
 float fractal_signed_distance(vec3 pos) {

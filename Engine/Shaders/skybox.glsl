@@ -6,17 +6,21 @@ layout(location = 0) in vec2 pos;
 out vec3 v_ray;
 out vec2 v_pos;
 
-uniform mat4 u_invprojview;
+uniform mat4 u_view;
+uniform mat4 u_proj;
 uniform float u_near;
 uniform float u_far;
+uniform vec3 u_cameraPos;
+
 
 void main() {
+    u_cameraPos;
     float tan_fov = tan(radians(90.0f) / 2.0f);
-    float aspect_ratio = 800.0f / 600.0f;
+    float aspect_ratio = 1200.0f / 900.0f;
     float x = pos.x * tan_fov * aspect_ratio;
     float y = pos.y * tan_fov;
 	gl_Position = vec4(x, y, 1.0f, 1.0f);
-	v_ray = (u_invprojview * vec4(pos * (u_far - u_near), u_far + u_near, u_far - u_near)).xyz;
+	v_ray = (inverse(u_proj * u_view) * vec4(pos * (u_far - u_near), u_far + u_near, u_far - u_near)).xyz;
 }
 
 #shader fragment
@@ -24,6 +28,7 @@ void main() {
 
 uniform float u_near;
 uniform float u_far;
+uniform vec3 u_cameraPos;
 
 in vec3 v_ray;
 out vec4 fragColor;

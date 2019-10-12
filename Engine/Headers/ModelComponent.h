@@ -12,13 +12,6 @@
 #include "Core/Common.h"
 #include "Batch.h"
 
-class Texture;
-class ShaderProgram;
-class VertexArray;
-class VertexBuffer;
-class IndexBuffer;
-class Batch;
-
 #define vertices_location 0
 #define uv_coords_location 1
 #define normals_location 2

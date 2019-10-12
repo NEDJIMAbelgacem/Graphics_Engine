@@ -1,3 +1,4 @@
+#pragma once
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include "glm/glm.hpp"
@@ -11,11 +12,17 @@
 
 #include <string>
 #include <sstream>
+#include <fstream>
 #include <vector>
 #include <unordered_map>
 #include <unordered_set>
+#include <set>
+#include <tuple>
 
 #include "Logger.h"
+
+#define WINDOW_WIDTH 1200
+#define WINDOW_HEIGHT 900
 
 #define LINE_POSITION std::string() + __FILE__ + ":" + std::to_string(__LINE__)
 #define ASSERT(x) if (!(x)) __debugbreak();

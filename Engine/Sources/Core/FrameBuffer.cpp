@@ -16,7 +16,7 @@ FrameBuffer::FrameBuffer() {
 	// create depth texture
 	glCall(glGenTextures(1, &depth_texture));
 	glCall(glBindTexture(GL_TEXTURE_2D, depth_texture));
-	glCall(glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT32, 800, 600, 0,
+	glCall(glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT32, WINDOW_WIDTH, WINDOW_HEIGHT, 0,
 		GL_DEPTH_COMPONENT, GL_FLOAT, nullptr));
 	glCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
 	glCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
@@ -61,7 +61,7 @@ void FrameBuffer::UnbindDepthTexture() {
 void FrameBuffer::Unbind() {
 	glCall(glBindFramebuffer(GL_READ_FRAMEBUFFER, fbo));
 	//glCall(glBindFramebuffer(GL_DRAW_FRAMEBUFFER, intermediate_fbo));
-	//glCall(glBlitFramebuffer(0, 0, 800, 600, 0, 0, 800, 600, GL_COLOR_BUFFER_BIT, GL_LINEAR));
+	//glCall(glBlitFramebuffer(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT, 0, 0, WINDOW_WIDTH, WINDOW_HEIGHT, GL_COLOR_BUFFER_BIT, GL_LINEAR));
 	glCall(glBindFramebuffer(GL_FRAMEBUFFER, 0)); 
 }
 

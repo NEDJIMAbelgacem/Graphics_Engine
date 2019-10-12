@@ -3,10 +3,11 @@
 
 layout(location = 0) in vec2 pos;
 
-uniform mat4 u_proj_matrix;
-uniform mat4 u_view_matrix;
+uniform mat4 u_proj;
+uniform mat4 u_view;
 uniform float u_near;
 uniform float u_far;
+uniform vec3 u_cameraPos;
 
 uniform vec3 cameraPos;
 
@@ -14,14 +15,17 @@ out vec3 v_origin;
 out vec3 v_ray;
 
 void main() {
+	u_cameraPos;
 	gl_Position = vec4(pos, 0.0, 1.0);
-	mat4 invprojview = inverse(u_proj_matrix * u_view_matrix);
+	mat4 invprojview = inverse(u_proj * u_view);
 	v_origin = (invprojview * (vec4(pos, -1.0, 1.0) * u_near)).xyz;
 	v_ray = (invprojview * vec4(pos * (u_far - u_near), u_far + u_near, u_far - u_near)).xyz;
 }
 
 #shader fragment
 #version 430 core
+
+uniform float u_metallic, u_roughness, u_light_intensity;
 
 in vec3 v_origin;
 in vec3 v_ray;
@@ -37,17 +41,18 @@ uniform float u_raymarching_max_distance;
 uniform float u_raymarching_min_distance;
 uniform int u_raymarching_max_steps;
 
-const float max_distance = u_raymarching_max_distance;
-const float min_distance = u_raymarching_min_distance;
-const int max_steps = u_raymarching_max_steps;
+const float max_distance = 10.0f;//u_raymarching_max_distance;
+const float min_distance = 0.01f;//u_raymarching_min_distance;
+const int max_steps = 50;//u_raymarching_max_steps;
 
-float Scale = u_scale;
-float MinRad2 = u_MinRad2;
-int Iterations = u_iterations;
-float Bailout = u_bailout;
+float Scale = 3.0f;//u_scale;
+float MinRad2 = 0.5f;//u_MinRad2;
+int Iterations = 500;//u_iterations;
+float Bailout = 10.0f;//u_bailout;
 
 vec4 scale = vec4(Scale, Scale, Scale, abs(Scale)) / MinRad2;
 float fractal_signed_distance(vec3 pos) {
+	u_metallic; u_roughness; u_light_intensity;
 	vec4 p = vec4(pos, 1);
 	vec4 p0 = p;  // p.w is the distance estimate
 	int i;
@@ -73,8 +78,8 @@ float fractal_color(vec3 pos) {
 		p = p * scale + p0;
 		if (r2 > Bailout) break;
 	}
-	//return p.w;
-	return pow(float(i) / Iterations, 1.0);
+	// return p.w;
+	return pow(float(i) / Iterations, 0.5);
 }
 
 float fractal_ray_march(vec3 origin, vec3 ray, out bool background_hit) {
@@ -127,7 +132,10 @@ void main() {
 	vec3 origin = 0.005 * v_origin;
 
 	float depth = fractal_ray_march(origin, ray, background_hit);
-	if (background_hit) discard;
+	if (background_hit) {
+		fragColor = vec4(texture(u_skybox, ray).rgb, 1.0);
+		return;
+	}
 
 	vec3 collision_point = origin + depth * ray;
 	vec3 normal = fractal_estimate_normal(collision_point, 0.00001);

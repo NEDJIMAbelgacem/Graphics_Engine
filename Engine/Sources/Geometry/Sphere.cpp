@@ -2,16 +2,25 @@
 
 Sphere::Sphere(ShaderProgram* shader, glm::vec3 position, float radius) {
     this->shader = shader;
-    this->SetLightColor(glm::vec3(1.0f));
-    this->SetLightPosition(glm::vec3(0.0f, 100.0f, 100.0f));
-    this->SetSurfaceParameters(0.0f, 1.0f, 1.0f);
     this->position = position;
     this->radius = radius;
+    
+    this->lighting.type = LightingType::PointLight;
+    this->lighting.color = glm::vec3(1.0f);
+    this->lighting.position = glm::vec3(0.0f, 1000.0f, 0.0f);
 
-    glm::mat4 m = glm::identity<glm::mat4>();
-    m = glm::translate(m, glm::vec3(position));
-    m = glm::scale(m, glm::vec3(radius));
-    this->SetModelMatrix(m);
+    this->surface.reflectivity = 0.0f;
+    this->surface.shine_damper = 1.0f;
+    this->surface.diffuse_factor = 1.0f;
+
+    transform.SetRotation(glm::vec3(0.0f));
+    transform.SetPosition(position);
+    transform.SetScale(glm::vec3(radius));
+
+    this->AddComponent(&this->transform);
+    this->AddComponent(&this->lighting);
+    this->AddComponent(&this->surface);
+
     this->vao = new VertexArray();
 
     int vertices_offset = 0;
@@ -89,18 +98,12 @@ void Sphere::Render() {
 
 void Sphere::SetPosition(glm::vec3 position) {
     this->position = position;
-    glm::mat4 identity = glm::identity<glm::mat4>();
-    glm::mat4 trans_m = glm::translate(identity, position);
-    glm::mat4 scale_m = glm::scale(identity, glm::vec3(radius));
-    this->SetModelMatrix(trans_m * scale_m);
+    this->transform.SetPosition(position);
 }
 
 void Sphere::SetRadius(float radius) {
     this->radius = radius;
-    glm::mat4 identity = glm::identity<glm::mat4>();
-    glm::mat4 trans_m = glm::translate(identity, position);
-    glm::mat4 scale_m = glm::scale(identity, glm::vec3(radius));
-    this->SetModelMatrix(trans_m * scale_m);
+    this->transform.SetScale(radius, radius, radius);
 }
 
 bool Sphere::ray_intersection(glm::vec3 origin, glm::vec3 ray, float& depth) {
@@ -125,9 +128,4 @@ bool Sphere::ray_intersection(glm::vec3 origin, glm::vec3 ray, float& depth) {
 
 float Sphere::is_point_inside(glm::vec3 point) {
     return glm::length(point - position) <= radius;
-}
-
-void Sphere::SetModelMatrix(glm::mat4 matrix) {
-    this->model_matrix = matrix;
-    this->shader->FillUniformMat4f("u_model", matrix);
 }

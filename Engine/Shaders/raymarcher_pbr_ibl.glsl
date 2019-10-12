@@ -3,8 +3,8 @@
 
 layout(location = 0) in vec2 pos;
 
-uniform mat4 u_proj_matrix;
-uniform mat4 u_view_matrix;
+uniform mat4 u_proj;
+uniform mat4 u_view;
 uniform float u_near;
 uniform float u_far;
 
@@ -15,7 +15,7 @@ out vec3 v_ray;
 
 void main() {
 	gl_Position = vec4(pos, 0.0, 1.0);
-	mat4 invprojview = inverse(u_proj_matrix * u_view_matrix);
+	mat4 invprojview = inverse(u_proj * u_view);
 	v_origin = (invprojview * (vec4(pos, -1.0, 1.0) * u_near)).xyz;
 	v_ray = (invprojview * vec4(pos * (u_far - u_near), u_far + u_near, u_far - u_near)).xyz;
 }
@@ -30,6 +30,9 @@ in vec3 v_ray;
 
 out vec4 fragColor;
 
+// uniform float u_light_intensity;
+uniform mat4 u_proj;
+uniform mat4 u_view;
 uniform vec3 u_cameraPos;
 uniform float u_near;
 uniform float u_far;
@@ -215,27 +218,27 @@ vec3 estimate_normal(vec3 p, float epsilon) {
 	));
 }
 
-const float max_distance = 2000.0f;
-const int max_steps = 80;
-const float min_distance = 1.0f;
+// const float max_distance = 2000.0f;
+// const int max_steps = 80;
+// const float min_distance = 1.0f;
 
-float march_ray(vec3 origin, vec3 ray, out bool background_hit) {
-	vec3 p = origin;
-	float depth = 0.0f;
-	int nb_steps = 0;
-	while (nb_steps < max_steps) {
-		nb_steps++;
-		float dist = signed_distance(p + depth * ray);
-		if (dist < min_distance) break;
-		depth += dist;
-		if (depth > max_distance) {
-			background_hit = true;
-			return depth;
-		}
-	}
-	background_hit = false;
-	return depth;
-}
+// float march_ray(vec3 origin, vec3 ray, out bool background_hit) {
+// 	vec3 p = origin;
+// 	float depth = 0.0f;
+// 	int nb_steps = 0;
+// 	while (nb_steps < max_steps) {
+// 		nb_steps++;
+// 		float dist = signed_distance(p + depth * ray);
+// 		if (dist < min_distance) break;
+// 		depth += dist;
+// 		if (depth > max_distance) {
+// 			background_hit = true;
+// 			return depth;
+// 		}
+// 	}
+// 	background_hit = false;
+// 	return depth;
+// }
 
 const float epsilon = 0.05;
 const float tile_size = 100.0f;
@@ -308,7 +311,7 @@ vec3 calculate_color(int object, vec3 collision_point, vec3 normal, vec3 reflect
 		roughness = u_roughness;
 	}
 	else {
-		object_albedo = sphere_albedo;
+		object_albedo = vec3(1.0);//sphere_albedo;
 		object -= 1;
 		metallic = 0.01 + float(object % (nb_spheres)) / float(nb_spheres + 1);
 		roughness = 0.01 + float(object / (nb_spheres)) / float(nb_spheres + 1);
@@ -342,41 +345,42 @@ vec3 calculate_color(int object, vec3 collision_point, vec3 normal, vec3 reflect
 	kD *= 1.0 - metallic;
 
 	// add to outgoing radiance Lo
+	// float NdotL = max(dot(normal, light_dir), 0.0);
+	// vec3 Lo = (kD * object_albedo / PI + specular) * light_radiance * NdotL;
+    // // ---------------------------------------------------------------------
+
+	// // ambient lighting (we now use IBL as the ambient term)
+	// //kS = fresnelSchlick(max(dot(normal, view_dir), 0.0), F0);
+	// //kD = 1.0 - kS;
+	// //kD *= 1.0 - metallic;
+	// //vec3 irradiance = texture(u_skybox, normal).rgb;
+	// //vec3 diffuse = irradiance * object_albedo;
+	// //vec3 ambient = (kD * diffuse) * sphere_ambient_occlusion;
+
+	// //vec3 Le = dot(view_dir, normal) * u_emmited_light * u_light_intensity;
+	// //color += /*Le +*/ ambient + Lo;
+	// vec3 ambient = vec3(0.03) * object_albedo * vec3(1.0f);
+    // color = Lo;
+
 	float NdotL = max(dot(normal, light_dir), 0.0);
 	vec3 Lo = (kD * object_albedo / PI + specular) * light_radiance * NdotL;
-    // ---------------------------------------------------------------------
 
 	// ambient lighting (we now use IBL as the ambient term)
-	//kS = fresnelSchlick(max(dot(normal, view_dir), 0.0), F0);
-	//kD = 1.0 - kS;
-	//kD *= 1.0 - metallic;
-	//vec3 irradiance = texture(u_skybox, normal).rgb;
-	//vec3 diffuse = irradiance * object_albedo;
-	//vec3 ambient = (kD * diffuse) * sphere_ambient_occlusion;
+	kS = fresnelSchlick(max(dot(normal, view_dir), 0.0), F0);
+	kD = 1.0 - kS;
+	kD *= 1.0 - metallic;
+	vec3 irradiance = texture(u_irradianceMap, normal).rgb;
+	vec3 diffuse = irradiance * object_albedo;
+	vec3 ambient = (kD * diffuse) * sphere_ambient_occlusion;
 
-	//vec3 Le = dot(view_dir, normal) * u_emmited_light * u_light_intensity;
-	//color += /*Le +*/ ambient + Lo;
-	vec3 ambient = vec3(0.03) * object_albedo * vec3(1.0f);
-    color = Lo;
+	color = ambient + Lo;
+
     //if (u_isHDR) {
     color = color / (color + vec3(1.0));
     color = pow(color, vec3(1.0 / 2.2));
 	//}
 
 	return pow(color, vec3(1.0f));
-}
-
-vec3 raymarching_routine(vec3 origin, vec3 ray, out bool background_hit, out vec3 collision_point, out vec3 normal, out vec3 reflection) {
-	float depth = march_ray(origin, ray, background_hit);
-	if (background_hit) {
-        reflection = ray;
-        return vec3(1.0f);
-    }
-	collision_point = origin + depth * ray;
-	normal = estimate_normal(collision_point, epsilon);
-	reflection = normalize(reflect(ray, normal));
-	int obj = closest_object(collision_point);
-	return calculate_color(obj, collision_point, normal, reflection);
 }
 
 vec3 light_dir = normalize(vec3(-1.0f, -1.00, 1.00));
@@ -386,48 +390,113 @@ vec3 pow(vec3 p, float e) {
 	return vec3(pow(p.x, e), pow(p.y, e), pow(p.z, e));
 }
 
-const int bouncing = u_reflection_bounces;
+
+
+const int bouncing = 3;//u_reflection_bounces;
+
+vec4 get_background_color(in samplerCube background_skybox, in vec3 ray) {
+	vec3 bckg_color = texture(u_skybox, ray).rgb;
+	// if (u_isHDR) {
+		bckg_color = bckg_color / (bckg_color + vec3(1.0));
+		bckg_color = pow(bckg_color, vec3(1.0 / 2.2));
+	// }
+	return bckg_color;
+}
+
+const float max_distance = 5000.0f;
+const int max_steps = 100;
+const float min_distance = 0.1f;
+
+float march_ray(vec3 origin, vec3 ray, out bool background_hit) {
+	vec3 p = origin;
+	float depth = 0.0f;
+	int nb_steps = 0;
+	while (nb_steps < max_steps) {
+		nb_steps++;
+		float dist = signed_distance(p + depth * ray);
+		if (dist < min_distance) break;
+		depth += dist;
+		if (depth > max_distance) {
+			background_hit = true;
+			return depth;
+		}
+	}
+	background_hit = false;
+	return depth;
+}
+
+vec3 raymarching_routine(vec3 origin, vec3 ray, out bool background_hit, out vec3 collision_point, out vec3 normal, out vec3 reflection) {
+	float depth = march_ray(origin, ray, background_hit);
+	collision_point = origin + depth * ray;
+	normal = estimate_normal(collision_point, epsilon);
+	reflection = normalize(reflect(ray, normal));
+	reflection = vec3(reflection.x, reflection.y, reflection.z);
+	if (background_hit) return get_background_color(u_skybox, ray);
+	int obj = closest_object(collision_point);
+	return calculate_color(obj, collision_point, normal, reflection);
+}
 
 void scene1_main() {
+	u_light_intensity;
 	bool background_hit = false;
-	vec3 collision_point1 = v_origin;
-    vec3 normal1;
-    vec3 reflection1 = normalize(v_ray);
-	vec3 object_color1 = raymarching_routine(v_origin, reflection1, background_hit, collision_point1, normal1, reflection1);
-	if (background_hit) {
-        vec3 envColor = texture(u_skybox, v_ray).rgb;
-        //if (u_isHDR) {
-            envColor = envColor / (envColor + vec3(1.0));
-            envColor = pow(envColor, vec3(1.0 / 2.2));
-        //}
-        fragColor = vec4(envColor, 1.0f);
-        return;
-    }
-    
-    vec3 collision_point2, normal2, reflection2;
-	vec3 object_color2 = vec3(1.0f);
-    int i;
-	for (i = 0; i < bouncing; ++i) {		
-		object_color2 = raymarching_routine(collision_point1, reflection1, background_hit, collision_point2, normal2, reflection2);
-        if (background_hit) break;
-        object_color1 = object_color1 * object_color2;
-		collision_point1 = collision_point2;
-		normal1 = normal2;
-		reflection1 = reflection2;
-	}
-    vec3 envColor = texture(u_skybox, normal1).rgb;
-    //if (u_isHDR) {
-    	envColor = envColor / (envColor + vec3(1.0));
-    	envColor = pow(envColor, vec3(1.0 / 2.2));
-    //}
-    
-    /*if (background_hit) {
+	vec3 collision_point = v_origin;
+	vec3 ray = normalize(v_ray);
+	vec3 normal = vec3(0.0);
+	vec3 reflection = vec3(0.0);
+	int bounce_limit = bouncing;
+	vec3 color = vec3(1.0);
+
+	for (int i = 0; i < bounce_limit; ++i) {
+		vec3 collision_point2;
+		vec3 c = raymarching_routine(collision_point + 0.1 * ray, ray, background_hit, collision_point2, normal, reflection);;
+		color *= c;
+		if (background_hit) break;
 		
-		fragColor = vec4(object_color1 * envColor, 1.0);
-		return;
-	}*/
-    fragColor = vec4(object_color1, 1.0f);
-    return;
+		collision_point = collision_point2;
+		ray = reflection;
+	}
+	fragColor = vec4(color, 1.0);
+	return;
+
+	// bool background_hit = false;
+	// vec3 collision_point1 = v_origin;
+    // vec3 normal1;
+    // vec3 reflection1 = normalize(v_ray);
+	// vec3 object_color1 = raymarching_routine(v_origin, reflection1, background_hit, collision_point1, normal1, reflection1);
+	// if (background_hit) {
+    //     vec3 envColor = texture(u_skybox, v_ray).rgb;
+    //     //if (u_isHDR) {
+    //         envColor = envColor / (envColor + vec3(1.0));
+    //         envColor = pow(envColor, vec3(1.0 / 2.2));
+    //     //}
+    //     fragColor = vec4(envColor, 1.0f);
+    //     return;
+    // }
+    
+    // vec3 collision_point2, normal2, reflection2;
+	// vec3 object_color2 = vec3(1.0f);
+    // int i;
+	// for (i = 0; i < bouncing; ++i) {		
+	// 	object_color2 = raymarching_routine(collision_point1, reflection1, background_hit, collision_point2, normal2, reflection2);
+    //     if (background_hit) break;
+    //     object_color1 = object_color1 * object_color2;
+	// 	collision_point1 = collision_point2;
+	// 	normal1 = normal2;
+	// 	reflection1 = reflection2;
+	// }
+    // vec3 envColor = texture(u_skybox, normal1).rgb;
+    // if (u_isHDR) {
+    // 	envColor = envColor / (envColor + vec3(1.0));
+    // 	envColor = pow(envColor, vec3(1.0 / 2.2));
+    // }
+    
+    // /*if (background_hit) {
+		
+	// 	fragColor = vec4(object_color1 * envColor, 1.0);
+	// 	return;
+	// }*/
+    // fragColor = vec4(object_color1, 1.0f);
+    // return;
 }
 
 void main() {

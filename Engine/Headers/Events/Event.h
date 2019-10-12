@@ -6,7 +6,12 @@ enum class EventType {
     WindowClose, WindowResize, WindowFocus, WindowLostFocus, WindowMoved,
     AppTick, AppUpdate, AppRender,
     KeyPressed, KeyReleased, KeyTyped,
-    MouseButtonPressed, MouseButtonReleased, MouseMoved, MouseScrolled
+    MouseButtonPressed, MouseButtonReleased, MouseMoved, MouseScrolled,
+    ImGuiEvent,
+    ImGui1FloatSliderChanged, ImGui3FloatSliderChanged, ImGuiColorPickerChanged,
+    ImGui1IntegerSliderChanged,
+    ImGui1FloatDragChanged, ImGui2FloatDragChanged, ImGui3FloatDragChanged,
+    ImGuiButtonClicked
 };
 
 enum EventCategory {
@@ -15,7 +20,8 @@ enum EventCategory {
     EventCategoryInput          = 1 << 1,
     EventCategoryKeyboard       = 1 << 2,
     EventCategoryMouse          = 1 << 3,
-    EventCategoryMouseButton    = 1 << 4
+    EventCategoryMouseButton    = 1 << 4,
+    EventCategoryImGuiEvent     = 1 << 5
 };
 
 #define EVENT_CLASS_TYPE(type) static EventType GetStaticType() { return EventType::##type; }\
@@ -39,6 +45,8 @@ public:
 class EventDispatcher {
     template<typename T>
     using EventFn = std::function<bool(T&)>;
+private:
+    Event& m_Event;
 public:
     EventDispatcher(Event& event) : m_Event(event) { }
 
@@ -50,8 +58,6 @@ public:
         }
         return false;
     }
-private:
-    Event& m_Event;
 };
 
 inline std::ostream& operator<<(std::ostream& os, const Event& e) { return os << e.ToString(); }

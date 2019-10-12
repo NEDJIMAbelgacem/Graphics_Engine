@@ -1,5 +1,5 @@
-#include "Window/Layer.h"
+#include "Layers/Layer.h"
 
-Layer::Layer(const std::string& debugName) : m_DebugName(debugName) { }
+Layer::Layer(const std::string& debug_name) : debug_name(debug_name) { }
 
 Layer::~Layer() { }

@@ -1,0 +1,83 @@
+
+You can also call ImGui::LogText() to output directly to the log without a visual output.
+Copy "Hello, world!" to clipboard
+
+## Window options #
+
+## Widgets #
+
+## Layout #
+
+## Popups & Modal windows #
+
+## Columns #
+
+## Filtering #
+
+## Inputs, Navigation & Focus #
+WantCaptureMouse: 1
+WantCaptureKeyboard: 1
+WantTextInput: 0
+WantSetMousePos: 0
+NavActive: 1, NavVisible: 0
+> Keyboard, Mouse & Navigation State
+    Mouse pos: (189, 289)
+    Mouse delta: (0, 0)
+    Mouse down:
+    Mouse clicked:
+    Mouse dbl-clicked:
+    Mouse released: b0
+    Mouse wheel: 0.0
+    Keys down:
+    Keys pressed:
+    Keys release:
+    Keys mods: 
+    NavInputs down:
+    NavInputs pressed:
+    NavInputs duration:
+    Hovering me sets the
+    keyboard capture flag Holding me clears the
+    the keyboard capture flag
+> Tabbing
+    Use TAB/SHIFT+TAB to cycle through keyboard editable fields.
+    dummy 1
+    dummy 2
+    dummy 3
+    dummy 4 (tab skip)
+    dummy 5
+> Focus from code
+    Focus on 1 Focus on 2 Focus on 3
+    click on a button to set focus 1
+    click on a button to set focus 2
+    click on a button to set focus 3 (tab skip)
+    Item with focus: <none>
+    Focus on X Focus on Y Focus on Z
+    0.000 0.000 0.000
+    Float3
+    NB: Cursor & selection are preserved when refocusing last used item in code.
+> Dragging
+    You can use ImGui::GetMouseDragDelta(0) to query for the dragged amount on any widget.
+    IsMouseDragging(0):
+      w/ default threshold: 0,
+      w/ zero threshold: 0
+      w/ large threshold: 0
+    IsMouseDragging(1):
+      w/ default threshold: 0,
+      w/ zero threshold: 0
+      w/ large threshold: 0
+    IsMouseDragging(2):
+      w/ default threshold: 0,
+      w/ zero threshold: 0
+      w/ large threshold: 0
+    Drag Me
+> Mouse cursors
+    Current mouse cursor = 0: Arrow
+    Hover to see mouse cursors: (?)
+    Mouse cursor 0: Arrow
+    Mouse cursor 1: TextInput
+    Mouse cursor 2: Move
+    Mouse cursor 3: ResizeNS
+    Mouse cursor 4: ResizeEW
+    Mouse cursor 5: ResizeNESW
+    Mouse cursor 6: ResizeNWSE
+    Mouse cursor 7: Hand

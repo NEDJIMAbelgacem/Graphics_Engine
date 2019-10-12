@@ -182,7 +182,7 @@ Cubemap::Cubemap(std::string file_name) {
 	glCall(glDeleteRenderbuffers(1, &captureRBO));
 	glCall(glDeleteFramebuffers(1, &captureFBO));
 	this->id = envCubemap;
-	glCall(glViewport(0, 0, 800, 600));
+	glCall(glViewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT));
 }
 
 ShaderProgram* Cubemap::irradianceShader = nullptr;
@@ -250,7 +250,7 @@ Cubemap::Cubemap(Cubemap* cubemap) {
 	glCall(glDeleteRenderbuffers(1, &captureRBO));
 	glCall(glDeleteFramebuffers(1, &captureFBO));
 	this->id = irradianceMap;
-	glCall(glViewport(0, 0, 800, 600));
+	glCall(glViewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT));
 }
 
 unsigned char* Cubemap::RotateImage(unsigned char* data, int x, int y, int nb_c, bool anti) {

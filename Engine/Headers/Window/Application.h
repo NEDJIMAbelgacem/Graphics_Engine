@@ -2,21 +2,21 @@
 
 #include "Core/Common.h"
 #include "Window/Window.h"
-#include "Window/LayerStack.h"
-#include "Window/Layer.h"
-#include "Window/ImGuiLayer.h"
-#include "Window/Events/Event.h"
-#include "Window/Events/ApplicationEvent.h"
+#include "Layers/LayerStack.h"
+#include "Layers/Layer.h"
+#include "Layers/ImGuiActivationLayer.h"
+#include "Events/Event.h"
+#include "Events/ApplicationEvent.h"
 
 class Application {
 private:
-    static Application* s_Instance;
+    static Application* instance;
 
-    std::unique_ptr<Window> m_Window;
-    LayerStack m_LayerStack;
-    ImGuiLayer* m_ImGuiLayer;
+    std::unique_ptr<Window> window;
+    LayerStack layer_stack;
+    ImGuiActivationLayer* imgui_layer;
 
-    bool m_Running = true;
+    bool is_running = true;
 public:
     static float delta_time;
 public:
@@ -30,9 +30,10 @@ public:
     void PushLayer(Layer* layer);
     void PushOverlay(Layer* layer);
 
-    inline Window& GetWindow() { return *m_Window; }
+    inline Window& GetWindow() { return *window; }
 
-    inline static Application& Get() { return *s_Instance; }
+    inline static Application& Get() { return *instance; }
+    inline static float GetFrameRate() { return 1.0f / delta_time; }
 private:
     bool OnWindowClose(WindowCloseEvent& e);
 

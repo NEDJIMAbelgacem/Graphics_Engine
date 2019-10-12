@@ -41,28 +41,6 @@ float Terrain::GetHeight(float x, float z) {
         (z + size.z / 2.0f) / sub_tile_size) * size.y / 2.0f + center_position.y;
 }
 
-void Terrain::Render() {
-    VertexArray* vao = terrain_block->GetVertexArray();
-    VertexBuffer* vbo = terrain_block->GetVerticesBuffer();
-	IndexBuffer* ibo = terrain_block->GetIndexesBuffer();
-	std::vector<Texture*> textures = this->GetTextures();
-
-	int instances_count = this->GetInstancesCount();
-	height_map->Bind(0);
-
-	for (unsigned int i = 0; i < textures.size(); ++i) textures[i]->Bind(i + 1);
-    
-    shader->Bind();
-	vao->Bind();
-    ibo->Bind();
-	glCall(glDrawElementsInstanced(GL_TRIANGLES, ibo->GetCount(), GL_UNSIGNED_INT, 0, instances_count));
-	ibo->Unbind();
-	vao->Unbind();
-	shader->Unbind();
-	for (Texture* t : textures) t->Unbind();
-	height_map->Unbind();
-}
-
 void Terrain::SetHeightAmplitude(float height) {
 	if (this->size.y != height) {
 		this->size.y = height;
@@ -170,4 +148,26 @@ void Terrain::SetLightParameters(glm::vec3 pos, glm::vec3 color) {
 void Terrain::SetCameraPosition(glm::vec3 pos) {
 	cameraPos = pos;
 	shader->FillUniformVec3("u_cameraPos", pos);
+}
+
+void Terrain::Render() {
+    VertexArray* vao = terrain_block->GetVertexArray();
+    VertexBuffer* vbo = terrain_block->GetVerticesBuffer();
+	IndexBuffer* ibo = terrain_block->GetIndexesBuffer();
+	std::vector<Texture*> textures = this->GetTextures();
+
+	int instances_count = this->GetInstancesCount();
+	height_map->Bind(0);
+
+	for (unsigned int i = 0; i < textures.size(); ++i) textures[i]->Bind(i + 1);
+    
+    shader->Bind();
+	vao->Bind();
+    ibo->Bind();
+	glCall(glDrawElementsInstanced(GL_TRIANGLES, ibo->GetCount(), GL_UNSIGNED_INT, 0, instances_count));
+	ibo->Unbind();
+	vao->Unbind();
+	shader->Unbind();
+	for (Texture* t : textures) t->Unbind();
+	height_map->Unbind();
 }

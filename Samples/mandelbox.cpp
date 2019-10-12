@@ -15,7 +15,7 @@
 #include "Tests/DebugTest.h"
 #include "SkyBox.h"
 
-const int mWidth = 800, mHeight = 600;
+const int mWidth = WINDOW_WIDTH, mHeight = WINDOW_HEIGHT;
 
 void InitImGui(GLFWwindow* window, const char* glsl_version);
 

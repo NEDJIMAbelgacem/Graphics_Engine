@@ -1,15 +1,11 @@
 #pragma once
 #include "Core/Common.h"
 #include "Model.h"
-#include <map>
-#include "ShaderComponents/DirectionalLight.h"
-#include "ShaderComponents/SurfaceParameters.h"
+#include "GameObject.h"
 
-class Model;
-
-class AlphabetAtlas : public DirectionalLight, public SurfaceParameters {
+class AlphabetAtlas : public GameObject {
 private:
-	std::map<char, Model*> chars_models;
+	std::unordered_map<char, Model*> chars_models;
 public:
 	AlphabetAtlas(std::string models_path, ShaderProgram* shader);
     ~AlphabetAtlas();

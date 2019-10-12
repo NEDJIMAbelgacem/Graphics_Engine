@@ -2,18 +2,16 @@
 #include "Core/Common.h"
 #include "TerrainBlock.h"
 #include "HeightMap.h"
-#include <string>
-#include "ShaderComponents/SurfaceParameters.h"
-#include "ShaderComponents/PointLight.h"
 #include "Core/IndexBuffer.h"
 #include "Core/Texture.h"
+#include "GameObject.h"
 
 class TerrainBlock;
 class HeightMap;
  
 #define SEED 1
 
-class Terrain : public PointLight, public SurfaceParameters{
+class Terrain : public GameObject {
 private:
 	TerrainBlock* terrain_block;
 	HeightMap* height_map;

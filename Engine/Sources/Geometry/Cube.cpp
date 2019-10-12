@@ -2,15 +2,21 @@
 
 Cube::Cube(ShaderProgram* shader, glm::vec3 position, glm::vec3 size, std::string obj_path) {
     this->shader = shader;
-    this->SetLightColor(glm::vec3(1.0f));
-    this->SetLightPosition(glm::vec3(0.0f, 100.0f, 100.0f));
-    this->SetSurfaceParameters(0.0f, 1.0f, 1.0f);
-    this->position = position;
-    this->size = size;
-    glm::mat4 m = glm::identity<glm::mat4>();
-    glm::mat4 scale_m = glm::scale(m, glm::vec3(size));
-    glm::mat4 trans_m = glm::translate(m, glm::vec3(position));
-    this->SetModelMatrix(trans_m * scale_m);
+    this->lighting.type = LightingType::PointLight;
+    this->lighting.color = glm::vec3(1.0f);
+    this->lighting.position = glm::vec3(0.0f, 1000.0f, 0.0f);
+
+    this->surface.reflectivity = 0.0f;
+    this->surface.shine_damper = 1.0f;
+    this->surface.diffuse_factor = 1.0f;
+
+    transform.SetRotation(glm::vec3(0.0f));
+    transform.SetPosition(position);
+    transform.SetScale(size);
+
+    this->AddComponent(&this->transform);
+    this->AddComponent(&this->lighting);
+    this->AddComponent(&this->surface);
 
     this->vao = new VertexArray();
     Assimp::Importer importer;
@@ -107,25 +113,4 @@ void Cube::Render() {
     //glCall(glPolygonMode(GL_FRONT_AND_BACK, GL_FILL));
     vao->Unbind();
 	shader->Unbind();
-}
-
-void Cube::SetPosition(glm::vec3 position) {
-    this->position = position;
-    glm::mat4 identity = glm::identity<glm::mat4>();
-    glm::mat4 trans_m = glm::translate(identity, position);
-    glm::mat4 scale_m = glm::scale(identity, size);
-    this->SetModelMatrix(trans_m * scale_m);
-}
-
-void Cube::SetSize(glm::vec3 size) {
-    this->size = size;
-    glm::mat4 identity = glm::identity<glm::mat4>();
-    glm::mat4 trans_m = glm::translate(identity, position);
-    glm::mat4 scale_m = glm::scale(identity, size);
-    this->SetModelMatrix(trans_m * scale_m);
-}
-
-void Cube::SetModelMatrix(glm::mat4 matrix) {
-    this->model_matrix = matrix;
-    this->shader->FillUniformMat4f("u_model", matrix);
 }

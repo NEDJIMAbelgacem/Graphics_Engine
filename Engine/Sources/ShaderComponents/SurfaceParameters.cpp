@@ -6,13 +6,13 @@ void SurfaceParameters::SetSurfaceParameters(float reflectivity, float shineDamp
 		shader->FillUniform1f("u_material.reflectivity", reflectivity);
 	}
 	
-	if (this->shineDamper != shineDamper) {
-		this->shineDamper = shineDamper;
-		shader->FillUniform1f("u_material.shineDamper", shineDamper);
+	if (this->shine_damper != shine_damper) {
+		this->shine_damper = shine_damper;
+		shader->FillUniform1f("u_material.shineDamper", shine_damper);
 	}
 
-	if (this->diffuseFactor != diffuseFactor) {
-		this->diffuseFactor = diffuseFactor;
-		shader->FillUniform1f("u_material.diffuseFactor", diffuseFactor);
+	if (this->diffuse_factor != diffuse_factor) {
+		this->diffuse_factor = diffuse_factor;
+		shader->FillUniform1f("u_material.diffuseFactor", diffuse_factor);
 	}
 }

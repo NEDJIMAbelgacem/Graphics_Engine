@@ -18,6 +18,7 @@
 #include "Window/Application.h"
 #include "Layers/CameraLayer.h"
 #include "Layers/ImGuiController.h"
+#include "Layers/KeboardControlLayer.h"
 #include "Light.h"
 #include "Systems/LightingManager.h"
 #include "Geometry/LightAnchor.h"
@@ -51,6 +52,12 @@ public:
         RenderingLayer* rendering_layer = new RenderingLayer(camera);
         CameraLayer* camera_layer = new CameraLayer(camera);
         ImGuiController* imgui_ctl = new ImGuiController("ImGui Controller");
+        KeyBoardControlLayer* keyboard_layer = new KeyBoardControlLayer();
+
+        auto func = []() {
+            std::cout << "called" << std::endl;
+        };
+        keyboard_layer->AddAction(GLFW_KEY_LEFT_SHIFT, func);
 
         ShaderProgram* sky_box_shader = new ShaderProgram(skybox_shader_path);
         // Model* model = new Model(model_path, model_shader);
@@ -88,6 +95,7 @@ public:
 
         PushLayer(imgui_ctl);
 		PushLayer(camera_layer);
+        PushLayer(keyboard_layer);
         PushLayer(rendering_layer);
 	}
 

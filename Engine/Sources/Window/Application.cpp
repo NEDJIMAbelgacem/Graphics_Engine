@@ -31,8 +31,8 @@ void Application::OnEvent(Event& e) {
     EventDispatcher dispatcher(e);
     dispatcher.Dispatch<WindowCloseEvent>(BIND_EVENT_FN(Application::OnWindowClose));
 
-    for (auto it = layer_stack.end(); it != layer_stack.begin(); ){
-        (*--it)->OnEvent(e);
+    for (auto it = layer_stack.rbegin(); it != layer_stack.rend(); ++it){
+        (*it)->OnEvent(e);
         if (e.Handled) 
             break;
     }

@@ -78,15 +78,16 @@ Window::Window(const WindowProps& props) {
     // mouse button event
     glfwSetMouseButtonCallback(m_Window, [](GLFWwindow* window, int button, int action, int mods) {
         WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
-
+        double mouse_x, mouse_y;
+        glfwGetCursorPos(window, &mouse_x, &mouse_y);
         switch (action) {
             case GLFW_PRESS: {
-                MouseButtonPressedEvent event(button);
+                MouseButtonPressedEvent event(button, (float)mouse_x, (float)mouse_y);
                 data.EventCallback(event);
                 break;
             }
             case GLFW_RELEASE: {
-                MouseButtonReleasedEvent event(button);
+                MouseButtonReleasedEvent event(button, (float)mouse_x, (float)mouse_y);
                 data.EventCallback(event);
                 break;
             }
@@ -104,7 +105,6 @@ Window::Window(const WindowProps& props) {
     // cursor move event
     glfwSetCursorPosCallback(m_Window, [](GLFWwindow* window, double xPos, double yPos) {
         WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
-
         MouseMovedEvent event((float)xPos, (float)yPos);
         data.EventCallback(event);
     });

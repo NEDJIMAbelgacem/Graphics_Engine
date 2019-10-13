@@ -16,11 +16,11 @@ private:
 };
 
 // Core log macros
-#define N3D_CORE_TRACE(...)    GetCoreLogger()->trace(__VA_ARGS__)
-#define N3D_CORE_INFO(...)     GetCoreLogger()->info(__VA_ARGS__)
-#define N3D_CORE_WARN(...)     GetCoreLogger()->warn(__VA_ARGS__)
-#define N3D_CORE_ERROR(...)    GetCoreLogger()->error(__VA_ARGS__)
-#define N3D_CORE_FATAL(...)    GetCoreLogger()->critical(__VA_ARGS__)
+#define N3D_CORE_TRACE(...)    Logger::GetCoreLogger()->trace(__VA_ARGS__)
+#define N3D_CORE_INFO(...)     Logger::GetCoreLogger()->info(__VA_ARGS__)
+#define N3D_CORE_WARN(...)     Logger::GetCoreLogger()->warn(__VA_ARGS__)
+#define N3D_CORE_ERROR(...)    Logger::GetCoreLogger()->error(__VA_ARGS__)
+#define N3D_CORE_FATAL(...)    Logger::GetCoreLogger()->critical(__VA_ARGS__)
 
 // Client log macros
 #define N3D_LOG_TRACE(...)	      Logger::GetClientLogger()->trace(__VA_ARGS__)

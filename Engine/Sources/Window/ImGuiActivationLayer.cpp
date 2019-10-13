@@ -46,8 +46,7 @@ void ImGuiActivationLayer::OnDetach() {
     ImGui::DestroyContext();
 }
 
-void ImGuiActivationLayer::OnEvent(Event& event) {
-}
+void ImGuiActivationLayer::OnEvent(Event& event) { }
 
 void ImGuiActivationLayer::Begin() {
     ImGui_ImplOpenGL3_NewFrame();

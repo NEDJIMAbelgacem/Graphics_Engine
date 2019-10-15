@@ -46,8 +46,8 @@ void Application::Run() {
         time2 = (float)glfwGetTime();
         delta_time = time2 - time1;
         
-        glClearColor(1, 0, 1, 1);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        // glClearColor(1, 0, 1, 1);
+        // glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         for (Layer* layer : layer_stack)
             layer->OnUpdate();

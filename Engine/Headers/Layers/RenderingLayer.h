@@ -53,6 +53,5 @@ public:
         RenderingManager::Update(Application::delta_time);
         RenderingManager::UpdateCamera(*camera);
         RenderingManager::Render();
-        
 	}
 };

@@ -41,14 +41,14 @@ uniform float u_raymarching_max_distance;
 uniform float u_raymarching_min_distance;
 uniform int u_raymarching_max_steps;
 
-const float max_distance = 10.0f;//u_raymarching_max_distance;
-const float min_distance = 0.01f;//u_raymarching_min_distance;
-const int max_steps = 50;//u_raymarching_max_steps;
+const float max_distance = 10000.0f;//u_raymarching_max_distance;
+const float min_distance = 0.001f;//u_raymarching_min_distance;
+const int max_steps = 100;//u_raymarching_max_steps;
 
 float Scale = 3.0f;//u_scale;
 float MinRad2 = 0.5f;//u_MinRad2;
-int Iterations = 500;//u_iterations;
-float Bailout = 10.0f;//u_bailout;
+int Iterations = 100;//u_iterations;
+float Bailout = 100.0f;//u_bailout;
 
 vec4 scale = vec4(Scale, Scale, Scale, abs(Scale)) / MinRad2;
 float fractal_signed_distance(vec3 pos) {
@@ -92,7 +92,7 @@ float fractal_ray_march(vec3 origin, vec3 ray, out bool background_hit) {
 		float dist = fractal_signed_distance(p + depth * ray);
 		if (dist < min_distance) break;
 		depth += dist;
-		if (depth > max_distance) {
+		if (dist > max_distance) {
 			background_hit = true;
 			return depth;
 		}

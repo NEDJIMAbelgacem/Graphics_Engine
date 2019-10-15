@@ -8,6 +8,9 @@ public:
     inline float GetX() const { return m_MouseX; }
     inline float GetY() const { return m_MouseY; }
 
+    void SetX(float x) { this->m_MouseX = x; }
+    void SetY(float y) { this->m_MouseY = y; }
+
     std::string ToString() const override {
         std::stringstream ss;
         ss << "MouseMovedEvent: " << m_MouseX << ", " << m_MouseY;
@@ -46,10 +49,12 @@ public:
     inline float GetX() const { return m_MouseX; }
     inline float GetY() const { return m_MouseY; }
 
+    void SetX(float x) { this->m_MouseX = x; }
+    void SetY(float y) { this->m_MouseY = y; }
+
     EVENT_CLASS_CATEGORY(EventCategoryMouse | EventCategoryInput)
 protected:
     MouseButtonEvent(int button, float x, float y) : m_Button(button), m_MouseX(x), m_MouseY(y) {}
-
 protected:
     int m_Button;
     float m_MouseX, m_MouseY;

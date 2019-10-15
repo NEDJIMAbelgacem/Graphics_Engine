@@ -26,9 +26,8 @@ public:
 
 	void OnEvent(Event& event) override {
         EventDispatcher dispatcher(event);
-        bool success = false;
-        if (!success) success = dispatcher.Dispatch<KeyReleasedEvent>(BIND_EVENT_FN(KeyBoardControlLayer::OnKeyEvent));
-        if (!success) success = dispatcher.Dispatch<KeyPressedEvent>(BIND_EVENT_FN(KeyBoardControlLayer::OnKeyEvent));
-        if (!success) success = dispatcher.Dispatch<KeyTypedEvent>(BIND_EVENT_FN(KeyBoardControlLayer::OnKeyEvent));
+        dispatcher.Dispatch<KeyReleasedEvent>(BIND_EVENT_FN(KeyBoardControlLayer::OnKeyEvent));
+        dispatcher.Dispatch<KeyPressedEvent>(BIND_EVENT_FN(KeyBoardControlLayer::OnKeyEvent));
+        dispatcher.Dispatch<KeyTypedEvent>(BIND_EVENT_FN(KeyBoardControlLayer::OnKeyEvent));
 	}
 };

@@ -53,8 +53,9 @@ public:
     template<typename T>
     bool Dispatch(EventFn<T> func) {
         if (m_Event.GetEventType() == T::GetStaticType()) {
-            m_Event.Handled = func(*(T*)&m_Event);
-            return true;
+            //m_Event.Handled = 
+            func(*(T*)&m_Event);
+            if (m_Event.Handled) return true;
         }
         return false;
     }

@@ -11,6 +11,10 @@ struct Object_2D {
 
     virtual void Render() { }
     virtual glm::mat4 GetModelMatrix() { return glm::identity<glm::mat4>(); }
+    virtual glm::mat4 GetModelMatrixInverse() {
+        glm::mat4 m = this->GetModelMatrix();
+        return glm::inverse(m);
+    }
     virtual void FillShader(ShaderProgram& prg) { }
     virtual bool InBounds(float x, float y) {
         return false;
@@ -22,25 +26,6 @@ struct Object_2D {
     virtual glm::vec2 GetPosition() { return this->position; }
     virtual float GetX() { return this->position.x; }
     virtual float GetY() { return this->position.y; }
-
-    virtual void ProcessEvent(MouseButtonReleasedEvent& e) {
-        // if (is_grabbed) e.Handled = true;
-    }
-
-    virtual void ProcessEvent(MouseButtonPressedEvent& e) {
-        if (!is_grabbed) is_grabbed = true;
-        else is_grabbed = false;
-        grab_pos = glm::vec2(e.GetX(), e.GetY());
-        e.Handled = true;
-    }
-
-    virtual void ProcessEvent(MouseMovedEvent& e) {
-        if (is_grabbed) {
-            this->SetPosition(this->GetPosition() - grab_pos + glm::vec2(e.GetX(), e.GetY()));
-            grab_pos = glm::vec2(e.GetX(), e.GetY());
-            e.Handled = true;
-        }
-    }
 protected:
     bool is_grabbed = false;
     glm::vec2 position;

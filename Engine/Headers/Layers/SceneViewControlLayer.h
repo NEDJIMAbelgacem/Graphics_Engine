@@ -9,9 +9,7 @@
 
 using namespace N3D;
 
-// TODO : fix events propagation system
-// ouseMoved_actions are a function that takes a delta x, y values and returns a boolean which determines if the event will be consumed or propagated to lower layers
-// SceneViewControlLayer is responsible of handling mouse usage and propagating events to a scene
+// SceneViewControlLayer is responsible of handling mouse usage and propagating events to the scene objects
 class SceneViewControlLayer : public Layer {
 private:
     AbstractCamera& camera;

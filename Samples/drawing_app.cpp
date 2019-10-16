@@ -51,10 +51,18 @@ public:
 			glm::vec2(200.0f, 0.0f), glm::vec2(200.0f, 100.0f), glm::vec2(300.0f, 0.0f), 
 			glm::vec3(0, 0, 1));
 
-		circle = new Circle(glm::vec2(500.0f, 500.0f), 100.0f, glm::vec3(0, 0, 1));
-		scene->AddObject(*circle);
-		
-		scene->AddObject(*triangle);
+		circle = new Circle(glm::vec2(500.0f, 500.0f), 50.0f, glm::vec3(0, 0, 1));
+		// scene->AddObject(*circle);
+
+		Line* line = new Line(glm::vec2(600.0f, 600.0f), glm::vec2(700.0f, 700.0f), 5, glm::vec3(1.0f, 0.0f, 0.0f));
+		// scene->AddObject(*line);
+		// scene->AddObject(*triangle);
+
+		std::vector<glm::vec2> points = {
+			{100, 300}, {300, 100}, {500, 200}, {500, 400}, {300, 500}
+		};
+		N3D::Polygon* polygon = new N3D::Polygon(points, glm::vec3(0.0f, 0.5f, 0.0f));
+		scene->AddObject(*polygon);
 	}
 
 	~DrawingApp() {

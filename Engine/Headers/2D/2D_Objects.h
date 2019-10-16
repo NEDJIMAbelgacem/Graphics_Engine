@@ -4,3 +4,5 @@
 #include "Objects/Triangle.h"
 #include "Objects/Circle.h"
 #include "Objects/PixMap.h"
+#include "Objects/Line.h"
+#include "Objects/Polygon.h"

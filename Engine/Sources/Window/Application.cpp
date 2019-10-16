@@ -30,6 +30,7 @@ void Application::PushOverlay(Layer* layer) {
 void Application::OnEvent(Event& e) {
     EventDispatcher dispatcher(e);
     dispatcher.Dispatch<WindowCloseEvent>(BIND_EVENT_FN(Application::OnWindowClose));
+    dispatcher.Dispatch<WindowResizeEvent>(BIND_EVENT_FN(Application::OnWindowResize));
 
     for (auto it = layer_stack.rbegin(); it != layer_stack.rend(); ++it){
         (*it)->OnEvent(e);

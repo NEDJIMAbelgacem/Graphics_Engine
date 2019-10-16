@@ -37,6 +37,14 @@ public:
         rendering_layer->SetBackgroundColor(background_color);
     }
 
+    void SetSize(float width, float height) {
+        camera->SetScreenSize(width, height);
+    }
+
+    glm::vec2 GetSize() {
+        return glm::vec2(camera->GetScreenHeight(), camera->GetScreenHeight());
+    }
+
     void SetBackGroundColor(glm::vec3 color) { rendering_layer->SetBackgroundColor(color); }
     glm::vec3 GetBackgroundColor() { return rendering_layer->GetBackgroundColor(); }
 

@@ -76,7 +76,7 @@ public:
         glm::mat4 inv_model = this->GetModelMatrixInverse();
         glm::vec4 v4 = inv_model * glm::vec4(x, y, 0.0f, 1.0f);
         
-        // calculate area of triangles containing v and triangles of the polygon
+        // calculate area of triangles containing v and the area of the polygon then compare
         // inefficient implementaion
         // TODO : get a better algorithm
         float areas_sum = 0.0f;

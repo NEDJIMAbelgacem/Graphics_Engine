@@ -42,7 +42,7 @@ private:
 	Circle* circle = nullptr;
 public:
 	DrawingApp() {
-        scene = new Scene_2D(*this);
+        scene = new Scene_2D(*this, glm::vec3(0.2f));
 		// rect = new N3D::Rectangle(glm::vec2(100.0f, 100.0f), 200, 200, glm::vec3(0, 0, 1));
 		rect = new N3D::PixMap(glm::vec2(0.0f, 0.0f), 100.0f, 100.0f, png_path);
 
@@ -69,6 +69,13 @@ public:
 		delete scene;
 		delete rect;
     }
+
+	bool OnWindowResize(WindowResizeEvent& e) override { 
+		// TODO : find more suitable place for this opengl call
+		glCall(glViewport(0, 0, e.GetWidth(), e.GetHeight()));
+		scene->SetSize((float)e.GetWidth(), (float)e.GetHeight());
+		return true;
+	}
 };
 
 Application* CreateApplication() {

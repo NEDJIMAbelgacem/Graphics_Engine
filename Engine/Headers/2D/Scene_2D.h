@@ -10,25 +10,27 @@
 #include "2D/RenderingLayer_2D.h"
 #include "2D/Camera_2D.h"
 #include "2D/2D_Objects.h"
-#include "Layers/SceneViewControlLayer.h"
+#include "2D/SceneControl_2D.h"
+#include "2D/CameraController_2D.h"
 #include "Events/Event.h"
+
 
 // layers are owned by the layer stack
 class Scene_2D {
 private:
     RenderingLayer_2D* rendering_layer = nullptr;
-    CameraController* controller = nullptr;
+    CameraController_2D* controller = nullptr;
     Camera_2D* camera = nullptr;
     KeyBoardControlLayer* keyboard_layer = nullptr;
-    SceneViewControlLayer* scene_control = nullptr;
+    SceneControl_2D* scene_control = nullptr;
     std::vector<Object_2D*> objects;
 public:
     Scene_2D(Application& app, glm::vec3 background_color = glm::vec3(0.0f)) {
         camera = new Camera_2D;
-        controller = new CameraController(*camera);
+        controller = new CameraController_2D(*camera);
         rendering_layer = new RenderingLayer_2D(*camera);
         keyboard_layer = new KeyBoardControlLayer;
-        scene_control = new SceneViewControlLayer(*camera);
+        scene_control = new SceneControl_2D(*camera);
         app.PushLayer(rendering_layer);
         app.PushLayer(keyboard_layer);
         app.PushLayer(controller);

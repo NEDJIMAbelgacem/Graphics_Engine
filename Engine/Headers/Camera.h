@@ -2,6 +2,7 @@
 #include "Core/Common.h"
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
+#include "AbstractCamera.h"
 
 #define PI 3.14159f
 
@@ -16,7 +17,7 @@ const float MAX_YAW = 360.0f;
 
 // Pitch and Yaw are probably inverted :-(
 // camera angles are in degrees
-class Camera {
+class Camera : public AbstractCamera {
 private:
 	glm::vec3 camera_pos;
 	glm::vec3 camera_right;

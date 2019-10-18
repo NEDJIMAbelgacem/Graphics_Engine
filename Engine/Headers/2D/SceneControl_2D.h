@@ -11,14 +11,14 @@
 using namespace N3D;
 
 // SceneViewControlLayer is responsible of handling mouse usage and propagating events to the scene objects
-class SceneViewControlLayer : public BaseSceneController {
+class SceneControl_2D : public BaseSceneController {
 private:
     std::vector<Object_2D*> objects;
     Object_2D* grabbed_object = nullptr;
     bool is_object_grabbed = false;
     glm::vec2 grab_pos;
 public:
-	SceneViewControlLayer(AbstractCamera& camera) : BaseSceneController(camera, "Scene view control layer") { }
+	SceneControl_2D(AbstractCamera& camera) : BaseSceneController(camera, "SceneControl_2D") { }
 
     void AddObject(Object_2D& obj) {
         objects.push_back(&obj);

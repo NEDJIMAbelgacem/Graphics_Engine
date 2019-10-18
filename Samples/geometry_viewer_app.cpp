@@ -58,7 +58,7 @@ public:
         CameraLayer* camera_layer = new CameraLayer(camera);
         RenderingLayer* rendering_layer = new RenderingLayer(camera);
         KeyBoardControlLayer* keyboard_layer = new KeyBoardControlLayer;
-        SceneViewControlLayer* mouse_control_layer = new SceneViewControlLayer;
+        SceneViewControlLayer* mouse_control_layer = new SceneViewControlLayer(*camera);
 
         auto func = [&](MouseMovedEvent& e) -> bool {
             N3D_LOG_INFO("mouse mouved called with {}", 1);
@@ -68,8 +68,8 @@ public:
             N3D_LOG_INFO("mouse button pressed called with {} {}", e.GetX(), e.GetY());
             return false;
         };
-        mouse_control_layer->AddMouseMovedAction(func);
-        mouse_control_layer->AddMouseButtonPressedAction(func2);
+        // mouse_control_layer->AddMouseMovedAction(func);
+        // mouse_control_layer->AddMouseButtonPressedAction(func2);
 
         sphere = new Sphere(sphere_shader, glm::vec3(-150.0f, 100.0f, 0.0f), 100.0f);
         cube = new Cube(cube_shader, glm::vec3(50.0f, 101.0f, 0.0f), glm::vec3(100.0f));
@@ -114,7 +114,7 @@ public:
         imgui_ctl->AddComponentControl(*plane->GetTransformComponent(), "plane transform");
         imgui_ctl->AddComponentControl(*camera_hook, "camera parameters");
         imgui_ctl->AddComponentControl(*shader_param, "shader parameters");
-        PushOverlay(mouse_control_layer);
+        // PushOverlay(mouse_control_layer);
         PushLayer(imgui_ctl);
         PushLayer(keyboard_layer);
 		PushLayer(camera_layer);

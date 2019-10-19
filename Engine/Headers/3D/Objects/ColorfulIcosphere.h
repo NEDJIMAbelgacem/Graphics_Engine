@@ -2,6 +2,7 @@
 #include "Core/Common.h"
 #include "Core/ShaderProgram.h"
 #include "Utilities/Maths.h"
+#include "Core/UniformBuffer.h"
 
 namespace N3D {
 
@@ -12,12 +13,14 @@ namespace N3D {
 #define tangent_location 4
 #define bitangent_location 5
 
-class Icosphere : public Object_3D {
+class ColorfulIcosphere : public Object_3D {
 protected:
     VertexArray* vao = nullptr;
     VertexBuffer* vertices_vbo = nullptr;
     VertexBuffer* normals_vbo = nullptr;
     IndexBuffer* ibo = nullptr;
+    UniformBuffer* colors_ubo = nullptr;
+    std::vector<int> colors_buffer;
 
     float radius;
     glm::vec3 color;
@@ -72,7 +75,7 @@ protected:
         return res;
     }
 public:
-    Icosphere(glm::vec3 _position, float _radius, glm::vec3 _color, glm::vec3 _rotation = glm::vec3(0.0f), int nb_subdivisions = 3) 
+    ColorfulIcosphere(glm::vec3 _position, float _radius, glm::vec3 _color, glm::vec3 _rotation = glm::vec3(0.0f), int nb_subdivisions = 4) 
         : Object_3D(_position, _rotation), radius(_radius), color(_color) {
         this->vao = new VertexArray();
 
@@ -82,17 +85,29 @@ public:
         int vertices_size = 3 * (int)vertices.size();
         int indexes_size = (int)faces.size();
 
-        vertices_vbo = new VertexBuffer(&vertices[0], vertices_size * sizeof(float));
+        float* vertices_arr = new float[3 * faces.size()];
+        int vertices_offset = 0;
+        for (int i : faces) {
+            vertices_arr[vertices_offset++] = vertices[i].x;
+            vertices_arr[vertices_offset++] = vertices[i].y;
+            vertices_arr[vertices_offset++] = vertices[i].z;
+        }
+
+        vertices_vbo = new VertexBuffer(&vertices_arr[0], vertices_offset * sizeof(float));
         BufferLayout vertices_layout;
         vertices_layout.AddElement<float>(3, vertices_location);
         vao->AddBuffer(*vertices_vbo, vertices_layout);
 
-        this->ibo = new IndexBuffer(&(unsigned int)faces[0], indexes_size);
+        // this->ibo = new IndexBuffer(&(unsigned int)faces[0], indexes_size);
+        for (int i = 0; i < (int)faces.size(); ++i) colors_buffer.push_back(i);
+        colors_ubo = new UniformBuffer((int)colors_buffer.size() * sizeof(int));
+        colors_ubo->ModifyData(0, (int)colors_buffer.size() * sizeof(int), &colors_buffer[0]);
+
     }
 
-    ~Icosphere() {
+    ~ColorfulIcosphere() {
         delete vao;
-        delete ibo;
+        // delete ibo;
         delete vertices_vbo;
     }
 
@@ -107,16 +122,15 @@ public:
 
     void FillShader(ShaderProgram& prg) {
         glm::mat4 model_m = this->GetModelMatrix();
+        colors_ubo->Bind(prg, "u_colors", 2);
         prg.FillUniformMat4f("u_model", model_m);
-        prg.FillUniformVec3("u_color", this->color);
-        prg.FillUniform1i("u_texture_is_used", 0);
     }
 
     void Render() override {
         vao->Bind();
-        ibo->Bind();
+        // ibo->Bind();
         // glCall(glPolygonMode(GL_FRONT_AND_BACK, GL_LINE));
-        glCall(glDrawElements(GL_TRIANGLES, ibo->GetCount(), GL_UNSIGNED_INT, 0));
+        glCall(glDrawArrays(GL_TRIANGLES, 0, (int)faces.size()));
         // glCall(glPolygonMode(GL_FRONT_AND_BACK, GL_FILL));
         vao->Unbind(); 
     }

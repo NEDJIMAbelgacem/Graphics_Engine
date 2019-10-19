@@ -38,12 +38,12 @@ class SceneApp : public Application {
 private:
 	Scene_3D* scene = nullptr;
     N3D::TexturedIcosphere* sphere = nullptr;
-	N3D::TexturedIcosphere* globe = nullptr;
+	N3D::ColorfulIcosphere* globe = nullptr;
 public:
 	SceneApp() {
         scene = new Scene_3D(*this, glm::vec3(0.2f));
         // sphere = new N3D::Icosphere(glm::vec3(0.0f), 50.0f, glm::vec3(1.0f, 0.0f, 0.0f));
-		globe = new N3D::TexturedIcosphere(png_path, glm::vec3(0.0f), 50.0f, glm::vec3(1.0f, 0.0f, 0.0f));
+		globe = new N3D::ColorfulIcosphere(glm::vec3(0.0f), 50.0f, glm::vec3(1.0f, 0.0f, 0.0f));
         // scene->AddObject(*sphere);
 		scene->AddObject(*globe);
 	}

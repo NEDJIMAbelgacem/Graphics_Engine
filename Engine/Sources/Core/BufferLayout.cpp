@@ -19,6 +19,7 @@ void BufferLayout::AddElement<unsigned int>(unsigned int count, int location) {
 	stride += LayoutElement::GetSize(GL_UNSIGNED_INT) * count;
 }
 
+
 template<>
 void BufferLayout::AddElement<unsigned char>(unsigned int count, int location) {
 	layout_vect.push_back(LayoutElement{ GL_BYTE, count, true, location });

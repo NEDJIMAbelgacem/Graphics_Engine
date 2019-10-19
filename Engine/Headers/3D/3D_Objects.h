@@ -4,3 +4,4 @@
 #include "Objects/TexturedSphere.h"
 #include "Objects/Icosphere.h"
 #include "Objects/TexturedIcosphere.h"
+#include "Objects/ColorfulIcosphere.h"

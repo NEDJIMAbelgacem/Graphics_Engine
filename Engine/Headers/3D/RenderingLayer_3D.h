@@ -8,7 +8,8 @@
 #include "3D/Camera_3D.h"
 #include "3D/Objects/Object_3D.h"
 
-const char* single_color_shader_path = "Shaders/3D/single_colored.glsl";
+// const char* single_color_shader_path = "Shaders/3D/single_colored.glsl";
+const char* single_color_shader_path = "Shaders/3D/mine_sphere.glsl";
 using namespace N3D;
 
 class RenderingLayer_3D : public Layer {

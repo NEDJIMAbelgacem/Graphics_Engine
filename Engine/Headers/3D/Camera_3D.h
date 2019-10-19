@@ -129,4 +129,23 @@ public:
         prg.FillUniformMat4f("u_view", view_m);
         prg.FillUniformMat4f("u_proj", proj_m);
     }
+    std::pair<glm::vec3, glm::vec3> GenerateRayFrom(float screen_space_x, float screen_space_y) {
+        glm::vec3 ray;
+        auto transform_to_projection_space = [](glm::vec4 p, float width, float height) -> glm::vec4 {
+            glm::mat4 scale = glm::scale(glm::identity<glm::mat4>(), glm::vec3(2.0f / width, -2.0f / height, 1));
+            glm::vec4 v = scale * p;
+            glm::mat4 translation = glm::translate(glm::identity<glm::mat4>(), glm::vec3(-1, 1, 0));
+            v = translation * v;
+            return translation * scale * p;
+        };
+
+        glm::vec4 projection_space_p = transform_to_projection_space(glm::vec4(screen_space_x, screen_space_y, 0.01f, 1.0f), this->screen_width, this->screen_height);
+
+        glm::vec4 view_space_p = glm::inverse(this->GetProjectionMatrix()) * projection_space_p;
+        view_space_p.w = 1.0f;
+        glm::vec4 world_space_p = glm::inverse(this->GetViewMatrix()) * view_space_p;
+        world_space_p.w = 1.0f;
+        ray = glm::vec3(world_space_p.x - camera_pos.x, world_space_p.y - camera_pos.y, world_space_p.z - camera_pos.z);
+        return {camera_pos, glm::normalize(ray)};
+    }
 };

@@ -75,7 +75,7 @@ protected:
         return res;
     }
 public:
-    ColorfulIcosphere(glm::vec3 _position, float _radius, glm::vec3 _color, glm::vec3 _rotation = glm::vec3(0.0f), int nb_subdivisions = 4) 
+    ColorfulIcosphere(glm::vec3 _position, float _radius, glm::vec3 _color, glm::vec3 _rotation = glm::vec3(0.0f), int nb_subdivisions = 0) 
         : Object_3D(_position, _rotation), radius(_radius), color(_color) {
         this->vao = new VertexArray();
 
@@ -98,10 +98,13 @@ public:
         vertices_layout.AddElement<float>(3, vertices_location);
         vao->AddBuffer(*vertices_vbo, vertices_layout);
 
-        // this->ibo = new IndexBuffer(&(unsigned int)faces[0], indexes_size);
-        for (int i = 0; i < (int)faces.size(); ++i) colors_buffer.push_back(i);
+        for (int i = 0; i < (int)faces.size(); ++i) colors_buffer.push_back(i % 3);
         colors_ubo = new UniformBuffer((int)colors_buffer.size() * sizeof(int));
-        colors_ubo->ModifyData(0, (int)colors_buffer.size() * sizeof(int), &colors_buffer[0]);
+        LoadUniformBufferData();
+
+        N3D_CORE_TRACE("{}", faces.size());
+
+        delete [] vertices_arr;
 
     }
 
@@ -109,6 +112,11 @@ public:
         delete vao;
         // delete ibo;
         delete vertices_vbo;
+    }
+
+    void LoadUniformBufferData() {
+        N3D_CORE_TRACE("--------------");
+        colors_ubo->ModifyData(0, (int)colors_buffer.size() * sizeof(int), &colors_buffer[0]);
     }
 
     glm::mat4 GetModelMatrix() {
@@ -133,6 +141,50 @@ public:
         glCall(glDrawArrays(GL_TRIANGLES, 0, (int)faces.size()));
         // glCall(glPolygonMode(GL_FRONT_AND_BACK, GL_FILL));
         vao->Unbind(); 
+    }
+
+    int selected_triangle = -1;
+
+    bool DoIntersect(glm::vec3 origin, glm::vec3 ray) {
+        // origin = this->GetModelMatrixInverse() * glm::vec4(origin, 1.0f);
+        // ray = this->GetModelMatrixInverse() * glm::vec4(ray, 0.0f);
+        ray = glm::normalize(ray);
+        int intersected_triangle = -1;
+        float distance_from_origin = 10e6;
+        N3D_CORE_TRACE("ColorfulIcosphere::{} ({}, {}, {}) : ({}, {}, {})", __func__, origin.x, origin.y, origin.z, ray.x, ray.y, ray.z);
+        for (int i = 0; i < faces.size(); i += 3) {
+            glm::vec3 v0 = this->GetModelMatrix() * glm::vec4(vertices[faces[i]], 1.0f);
+            glm::vec3 v1 = this->GetModelMatrix() * glm::vec4(vertices[faces[i + 1]], 1.0f);
+            glm::vec3 v2 = this->GetModelMatrix() * glm::vec4(vertices[faces[i + 2]], 1.0f);
+
+            float t = Ray_Plane_Intersection(origin, ray, v0, v1, v2);
+            if (t < 0) continue;
+            float alpha, beta, gamma;
+            glm::vec3 p = origin + t * ray;
+            if (!GetBaryCentricCoordinates(p, v0, v1, v2, alpha, beta, gamma)) continue;
+            glm::vec3 tri_center = (1.0f / 3.0f) * (v0 + v1 + v2);
+            float d = glm::distance(p, origin);
+            if (d < distance_from_origin) {
+                distance_from_origin = d;
+                intersected_triangle = i / 3;
+            }
+            N3D_CORE_TRACE("triangle : {}", i / 3);
+            
+        }
+        N3D_CORE_TRACE("Intersected triangle : {}", intersected_triangle);
+        selected_triangle = intersected_triangle;
+        return true;
+    }
+
+    bool HandleMousePressedEvent(MouseButtonPressedEvent& e) {
+        N3D_CORE_TRACE("HandleMousePressedEvent");
+        if (selected_triangle != -1) ChangleTriangleColor(selected_triangle);
+        return true;
+    }
+
+    void ChangleTriangleColor(int triangle_index) {
+        for (int i = 0; i < 3; ++i) colors_buffer[3 * triangle_index + i] = (colors_buffer[3 * triangle_index + i] + 1) % 3;
+        LoadUniformBufferData();
     }
 };
 

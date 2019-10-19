@@ -18,6 +18,9 @@ struct Object_3D {
     }
     virtual void FillShader(ShaderProgram& prg) { }
 
+    virtual bool DoIntersect(glm::vec3 origin, glm::vec3 ray) { return false; }
+    virtual bool HandleMousePressedEvent(MouseButtonPressedEvent& e) { return false; }
+
     virtual void SetPosition(glm::vec3 _position) { this->position = _position; }
     virtual glm::vec3 GetPosition() { return this->position; }
 

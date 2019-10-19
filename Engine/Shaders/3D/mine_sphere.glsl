@@ -18,7 +18,7 @@ out vec3 v_color;
 void main() {
     v_frag_coords = position.xy;
     gl_Position = u_proj * u_view * u_model * vec4(position, 1.0f);
-    int color_id = color_index[gl_VertexID / 9] / 4 % 4;
+    int color_id = color_index[gl_VertexID / 3];
     if (color_id == 0) v_color = vec3(1.0f, 0.0f, 0.0f);
     else if (color_id == 1) v_color = vec3(0.0f, 1.0f, 0.0f);
     else if (color_id == 2) v_color = vec3(0.0f, 0.0f, 1.0f);

@@ -62,6 +62,13 @@ public:
                 rotation.x += -dy * 0.01f;
                 obj->SetRotation(rotation);
             }
+        } else {
+            auto [origin, ray] = cam.GenerateRayFrom(e.GetX(), e.GetY());
+            for (Object_3D* obj : objects) {
+                if (obj->DoIntersect(origin, ray)) {
+                    obj->HandleMouseMovedEvent(e);
+                }
+            }
         }
         return true;
     }

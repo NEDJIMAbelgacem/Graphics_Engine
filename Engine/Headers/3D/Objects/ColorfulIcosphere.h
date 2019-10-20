@@ -20,8 +20,14 @@ protected:
     VertexBuffer* normals_vbo = nullptr;
     IndexBuffer* ibo = nullptr;
     UniformBuffer* colors_ubo = nullptr;
-    std::vector<int> colors_buffer;
+    UniformBuffer* selected_triangles_ubo = nullptr;
 
+    std::vector<int> colors_buffer;
+    std::map<int, int> parent_triangle;
+    std::map<int, std::vector<int>> children_triangles;
+
+    std::vector<int> selected_triangles;
+    
     float radius;
     glm::vec3 color;
 protected:
@@ -29,33 +35,49 @@ protected:
     // TODO : add normals
     std::vector<glm::vec3> normals;
     std::vector<int> faces;
+    std::vector<int> subdivisions_offsets;
+    int last_subdivision_offset = 0;
 protected:
     int FindMiddle(int v1, int v2) {
         glm::vec3 v3 = 2.0f * glm::normalize((vertices[v1] + vertices[v2]));
         vertices.push_back(v3);
         return (int)vertices.size() - 1;
     }
-    std::vector<int> SubdivideIcosahedron(std::vector<int>& icosahedron) {
-        std::vector<int> res;
-        for (int i = 0; i < (int)icosahedron.size(); i += 3) {
+    // returns the offset of the last processed subdivision
+    int SubdivideIcosahedron(std::vector<int>& icosahedron, int offset) {
+        int nb_elements = (int)icosahedron.size() - offset;
+        int res = (int)icosahedron.size();
+        for (int i = offset; i < offset + nb_elements; i += 3) {
             int a = FindMiddle(icosahedron[i], icosahedron[i + 1]);
             int b = FindMiddle(icosahedron[i + 1], icosahedron[i + 2]);
             int c = FindMiddle(icosahedron[i + 2], icosahedron[i]);
-            res.push_back(icosahedron[i]); 
-            res.push_back(a);
-            res.push_back(c);
-            
-            res.push_back(icosahedron[i + 1]);
-            res.push_back(b); 
-            res.push_back(a);
-            
-            res.push_back(icosahedron[i + 2]); 
-            res.push_back(c);
-            res.push_back(b);
 
-            res.push_back(a);
-            res.push_back(b); 
-            res.push_back(c);
+            int current_triangle = i / 3;
+            
+
+            children_triangles[current_triangle].push_back((int)icosahedron.size() / 3);
+            parent_triangle[(int)icosahedron.size() / 3] = current_triangle;
+            icosahedron.push_back(icosahedron[i]);
+            icosahedron.push_back(a);
+            icosahedron.push_back(c);
+            
+            children_triangles[current_triangle].push_back((int)icosahedron.size() / 3);
+            parent_triangle[(int)icosahedron.size() / 3] = current_triangle;
+            icosahedron.push_back(icosahedron[i + 1]);
+            icosahedron.push_back(b); 
+            icosahedron.push_back(a);
+            
+            children_triangles[current_triangle].push_back((int)icosahedron.size() / 3);
+            parent_triangle[(int)icosahedron.size() / 3] = current_triangle;
+            icosahedron.push_back(icosahedron[i + 2]); 
+            icosahedron.push_back(c);
+            icosahedron.push_back(b);
+
+            children_triangles[current_triangle].push_back((int)icosahedron.size() / 3);
+            parent_triangle[(int)icosahedron.size() / 3] = current_triangle;
+            icosahedron.push_back(a);
+            icosahedron.push_back(b); 
+            icosahedron.push_back(c);
         }
         return res;
     }
@@ -75,21 +97,33 @@ protected:
         return res;
     }
 public:
-    ColorfulIcosphere(glm::vec3 _position, float _radius, glm::vec3 _color, glm::vec3 _rotation = glm::vec3(0.0f), int nb_subdivisions = 0) 
+    ColorfulIcosphere(glm::vec3 _position, float _radius, glm::vec3 _color, glm::vec3 _rotation = glm::vec3(0.0f), int nb_subdivisions = 2) 
         : Object_3D(_position, _rotation), radius(_radius), color(_color) {
         this->vao = new VertexArray();
 
         faces = ConstructInitialIcosahedron();
-        for (int i = 0; i < nb_subdivisions; ++i) faces = SubdivideIcosahedron(faces);
+        for (int i = 0; i < nb_subdivisions; ++i) {
+            subdivisions_offsets.push_back(last_subdivision_offset);
+            last_subdivision_offset = SubdivideIcosahedron(faces, last_subdivision_offset);
+        }
+
+        // for (auto [tri, par] : parent_triangle) {
+        //     std::cerr << tri << " -> " << par << " -> ";
+        //     for (int i : children_triangles[par]) {
+        //         std::cerr << i << " ";
+        //     }
+        //     std::cerr << std::endl;
+        // }
+
 
         int vertices_size = 3 * (int)vertices.size();
 
         float* vertices_arr = new float[3 * faces.size()];
         int vertices_offset = 0;
-        for (int i : faces) {
-            vertices_arr[vertices_offset++] = vertices[i].x;
-            vertices_arr[vertices_offset++] = vertices[i].y;
-            vertices_arr[vertices_offset++] = vertices[i].z;
+        for (int i = last_subdivision_offset; i < faces.size(); ++i) {
+            vertices_arr[vertices_offset++] = vertices[faces[i]].x;
+            vertices_arr[vertices_offset++] = vertices[faces[i]].y;
+            vertices_arr[vertices_offset++] = vertices[faces[i]].z;
         }
 
         vertices_vbo = new VertexBuffer(&vertices_arr[0], vertices_offset * sizeof(float));
@@ -97,8 +131,12 @@ public:
         vertices_layout.AddElement<float>(3, vertices_location);
         vao->AddBuffer(*vertices_vbo, vertices_layout);
 
-        for (int i = 0; i < (int)faces.size() / 3; ++i) colors_buffer.push_back(i);
-        colors_ubo = new UniformBuffer((int)colors_buffer.size() * sizeof(int));
+        for (int i = last_subdivision_offset / 3; i < (int)faces.size() / 3; ++i) {
+            colors_buffer.push_back(i);
+        }
+        colors_ubo = new UniformBuffer((int)colors_buffer.size() * sizeof(int), 2);
+
+        selected_triangles_ubo = new UniformBuffer((int)4000 * sizeof(int), 3);
         LoadUniformBufferData();
 
         delete [] vertices_arr;
@@ -112,10 +150,16 @@ public:
     }
 
     void LoadUniformBufferData() {
-        int* colors = new int[4 * colors_buffer.size()];
+        int* colors = new int[colors_buffer.size()];
         for (int i = 0; i < colors_buffer.size(); ++i) colors[i] = colors_buffer[i];
         colors_ubo->ModifyData(0, (int)colors_buffer.size() * sizeof(int), &colors[0]);
         delete [] colors;
+
+        int* selected_triangles_arr = new int[1 + selected_triangles.size()];
+        selected_triangles_arr[0] = (int)selected_triangles.size();
+        for (int i = 0; i < selected_triangles.size(); ++i) selected_triangles_arr[1 + i] = selected_triangles[i];
+        selected_triangles_ubo->ModifyData(0, (1 + (int)selected_triangles.size()) * sizeof(int), &selected_triangles_arr[0]);
+        delete [] selected_triangles_arr;
     }
 
     glm::mat4 GetModelMatrix() {
@@ -129,8 +173,10 @@ public:
 
     void FillShader(ShaderProgram& prg) {
         glm::mat4 model_m = this->GetModelMatrix();
-        colors_ubo->Bind(prg, "u_colors", 2);
+        colors_ubo->Bind(prg, "u_colors");
+        selected_triangles_ubo->Bind(prg, "u_selected_triangles");
         prg.FillUniformMat4f("u_model", model_m);
+        // prg.FillUniform1i("u_selected_triangle", mouse_over_triangle);
     }
 
     void Render() override {
@@ -143,6 +189,7 @@ public:
     }
 
     int selected_triangle = -1;
+    int mouse_over_triangle = -1;
 
     bool DoIntersect(glm::vec3 origin, glm::vec3 ray) {
         origin = this->GetModelMatrixInverse() * glm::vec4(origin, 1.0f);
@@ -150,7 +197,7 @@ public:
         ray = glm::normalize(ray);
         int intersected_triangle = -1;
         float distance_from_origin = 10e6;
-        for (int i = 0; i < faces.size(); i += 3) {
+        for (int i = last_subdivision_offset; i < faces.size(); i += 3) {
             glm::vec3 v0 = vertices[faces[i]];
             glm::vec3 v1 = vertices[faces[i + 1]];
             glm::vec3 v2 = vertices[faces[i + 2]];
@@ -177,8 +224,21 @@ public:
         return true;
     }
 
+    bool HandleMouseMovedEvent(MouseMovedEvent& e) {
+        const int parent_level = 3;
+        if (selected_triangle != -1) {
+            selected_triangles.clear();
+            int parent = parent_triangle[selected_triangle];
+            for (int child : children_triangles[parent]) {
+                selected_triangles.push_back(child - last_subdivision_offset / 3);
+            }
+            LoadUniformBufferData();
+        }
+        return true;
+    }
+
     void ChangleTriangleColor(int triangle_index) {
-        colors_buffer[triangle_index] = (colors_buffer[triangle_index] + 1) % 5;
+        colors_buffer[triangle_index - last_subdivision_offset / 3]++;
         LoadUniformBufferData();
     }
 };

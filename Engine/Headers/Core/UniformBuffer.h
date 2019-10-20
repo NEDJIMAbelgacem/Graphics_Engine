@@ -7,13 +7,14 @@
 class UniformBuffer {
 private:
 	unsigned int id;
+    int binding_point;
 public:
-	UniformBuffer(unsigned int size_in_bytes) {
+	UniformBuffer(unsigned int size_in_bytes, int _binding_point) : binding_point(_binding_point) {
         glCall(glGenBuffers(1, &id));
 	    glCall(glBindBuffer(GL_UNIFORM_BUFFER, id));
-	    glCall(glBufferData(GL_UNIFORM_BUFFER, size_in_bytes + 2, nullptr, GL_STATIC_DRAW));
+	    glCall(glBufferData(GL_UNIFORM_BUFFER, size_in_bytes, nullptr, GL_STATIC_DRAW));
 
-        glCall(glBindBufferBase(GL_UNIFORM_BUFFER, 2, id));
+        glCall(glBindBufferBase(GL_UNIFORM_BUFFER, binding_point, id));
         glCall(glBindBuffer(GL_UNIFORM_BUFFER, 0));
         // glCall(glBindBufferRange(GL_UNIFORM_BUFFER, 2, id, 0, size_in_bytes));
     }
@@ -26,7 +27,7 @@ public:
 	    return this->id;
     }
 
-	void Bind(ShaderProgram& prg, std::string uniform_block_name, unsigned int binding_point) {
+	void Bind(ShaderProgram& prg, std::string uniform_block_name) {
         glCall(glBindBuffer(GL_UNIFORM_BUFFER, id));
         int index;
         glCall(index = glGetUniformBlockIndex(prg.GetId(), uniform_block_name.c_str()));

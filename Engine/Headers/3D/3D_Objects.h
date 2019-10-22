@@ -5,3 +5,4 @@
 #include "Objects/Icosphere.h"
 #include "Objects/TexturedIcosphere.h"
 #include "Objects/ColorfulIcosphere.h"
+#include "Objects/SkyBox.h"

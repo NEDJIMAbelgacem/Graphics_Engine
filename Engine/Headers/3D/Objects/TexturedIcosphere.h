@@ -2,7 +2,6 @@
 #include "Core/Common.h"
 #include "Core/ShaderProgram.h"
 #include "Utilities/Maths.h"
-#include "Sphere.h"
 #include "Core/Texture.h"
 
 namespace N3D {

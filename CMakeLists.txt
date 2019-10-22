@@ -11,6 +11,10 @@ option(ASSIMP_BUILD_SAMPLES OFF)
 option(ASSIMP_BUILD_TESTS OFF)
 add_subdirectory(Engine/Vendor/assimp)
 
+
+# add_subdirectory(Engine/Vendor)
+
+
 #option(BUILD_BULLET2_DEMOS OFF)
 #option(BUILD_CPU_DEMOS OFF)
 #option(BUILD_EXTRAS OFF)
@@ -29,6 +33,7 @@ endif()
 
 include_directories(Engine/Headers/
                     Engine/Vendor/
+                    Engine/Vendor/freetype/include/
                     Engine/Vendor/assimp/include/
                     Engine/Vendor/bullet/src/
                     Engine/Vendor/glad/include/

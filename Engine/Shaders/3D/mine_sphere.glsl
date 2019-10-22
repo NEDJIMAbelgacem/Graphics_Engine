@@ -32,6 +32,8 @@ vec3 hsv2rgb(vec3 c)
 void main() {
     v_frag_coords = position.xy;
     gl_Position = u_proj * u_view * u_model * vec4(position, 1.0f);
+    // gl_Position.w = -1.0f;
+
     int triangle_index = gl_VertexID / 3;
     // if (gl_VertexID / 3 == u_selected_triangle) is_selected = 1.0f;
     // else is_selected = 0.0f;
@@ -44,7 +46,6 @@ void main() {
             break;
         }
     }
-    
 
     int color_id = color_index[gl_VertexID / 3 / 4][gl_VertexID / 3 % 4] % 3;
 

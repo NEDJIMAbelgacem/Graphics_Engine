@@ -13,7 +13,6 @@
 #include "3D/CameraController_3D.h"
 #include "Events/Event.h"
 
-
 // layers are owned by the layer stack
 class Scene_3D {
 private:
@@ -21,6 +20,8 @@ private:
     CameraController_3D* controller = nullptr;
     Camera_3D* camera = nullptr;
     SceneControl_3D* scene_control = nullptr;
+    N3D::SkyBox* skybox = nullptr;
+
     std::vector<Object_3D*> objects;
 public:
     Scene_3D(Application& app, glm::vec3 background_color = glm::vec3(0.0f)) {
@@ -45,6 +46,11 @@ public:
 
     glm::vec2 GetSize() {
         return glm::vec2(camera->GetScreenHeight(), camera->GetScreenHeight());
+    }
+
+    void SetSkybox(N3D::SkyBox& _skybox) {
+        this->skybox = &_skybox;
+        this->rendering_layer->SetSkybox(_skybox);
     }
 
     void SetBackGroundColor(glm::vec3 color) { rendering_layer->SetBackgroundColor(color); }

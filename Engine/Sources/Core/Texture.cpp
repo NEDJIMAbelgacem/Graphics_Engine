@@ -25,6 +25,10 @@ Texture::Texture(std::string path, bool flip_on_load)
 	stbi_image_free(texture_buffer);
 }
 
+Texture::Texture(unsigned int _id, int _width, int _height, int _bpp) : id(_id), width(_width), height(_height), bitsPerPixel(_bpp) {
+
+}
+
 void Texture::Bind(unsigned int slot) {
 	glCall(glActiveTexture(GL_TEXTURE0 + slot));
 	glCall(glBindTexture(GL_TEXTURE_2D, id));

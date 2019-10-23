@@ -18,8 +18,7 @@
 #include "3D/Scene_3D.h"
 #include "3D/3D_Objects.h"
 
-#include "ft2build.h"
-#include FT_FREETYPE_H 
+#include "FontManager.h"
 
 using namespace N3D;
 
@@ -40,24 +39,26 @@ public:
         // scene->AddObject(*sphere);
 		scene->AddObject(*globe);
 
-		skyboxes.push_back(new N3D::SkyBox("ame_ash", "ashcanyon"));
+		// skyboxes.push_back(new N3D::SkyBox("ame_ash", "ashcanyon"));
         skyboxes.push_back(new N3D::SkyBox("ame_emerald", "emeraldfog"));
         skyboxes.push_back(new N3D::SkyBox("ame_flatrock", "flatrock"));
-        // skyboxes.push_back(new SkyBox("ame_oasis", "oasisnight", skybox_shader));
-        // skyboxes.push_back(new SkyBox("darkskies", "darkskies", skybox_shader));
-        // skyboxes.push_back(new SkyBox("ely_darkcity", "darkcity", skybox_shader));
-        // skyboxes.push_back(new SkyBox("hw_entropic", "entropic", skybox_shader));
-        // skyboxes.push_back(new SkyBox("lmcity", "lmcity", skybox_shader));
-        // skyboxes.push_back(new SkyBox("mp_bromene", "bromene-bay", skybox_shader));
-        // skyboxes.push_back(new SkyBox("mp_classm", "classmplanet", skybox_shader));
-        // skyboxes.push_back(new SkyBox("mp_deception", "deception_pass", skybox_shader));
-        // skyboxes.push_back(new SkyBox("mp_deviltooth", "devils-tooth", skybox_shader));
-        // skyboxes.push_back(new SkyBox("mp_drakeq", "drakeq", skybox_shader));
-        // skyboxes.push_back(new SkyBox("mp_midnight", "midnight-silence", skybox_shader));
-        // skyboxes.push_back(new SkyBox("mp_po", "po", skybox_shader));
-        // skyboxes.push_back(new SkyBox("mp_totality", "totality", skybox_shader));
-        // skyboxes.push_back(new SkyBox("mp_us", "urbansp", skybox_shader));
-		scene->SetSkybox(*skyboxes[0]);
+        skyboxes.push_back(new N3D::SkyBox("ame_oasis", "oasisnight"));
+        // skyboxes.push_back(new N3D::SkyBox("darkskies", "darkskies"));
+        // skyboxes.push_back(new N3D::SkyBox("ely_darkcity", "darkcity"));
+        // skyboxes.push_back(new N3D::SkyBox("hw_entropic", "entropic"));
+        // skyboxes.push_back(new N3D::SkyBox("lmcity", "lmcity"));
+        // skyboxes.push_back(new N3D::SkyBox("mp_bromene", "bromene-bay"));
+        // skyboxes.push_back(new N3D::SkyBox("mp_classm", "classmplanet"));
+        // skyboxes.push_back(new N3D::SkyBox("mp_deception", "deception_pass"));
+        // skyboxes.push_back(new N3D::SkyBox("mp_deviltooth", "devils-tooth"));
+        // skyboxes.push_back(new N3D::SkyBox("mp_drakeq", "drakeq"));
+        // skyboxes.push_back(new N3D::SkyBox("mp_midnight", "midnight-silence"));
+        // skyboxes.push_back(new N3D::SkyBox("mp_po", "po"));
+        // skyboxes.push_back(new N3D::SkyBox("mp_totality", "totality");
+        // skyboxes.push_back(new N3D::SkyBox("mp_us", "urbansp"));
+		scene->SetSkybox(*skyboxes[1]);
+
+        scene->AddText("YES", {10, 10}, 1, glm::vec3(0.0f, 1.0f, 0.0f));
 	}
 
 	~SceneApp() {

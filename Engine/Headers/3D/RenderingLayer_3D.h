@@ -5,10 +5,13 @@
 #include "Window/Application.h"
 #include "3D/Camera_3D.h"
 #include "3D/3D_Objects.h"
+#include "FontManager.h"
 
 // const char* single_color_shader_path = "Shaders/3D/single_colored.glsl";
 const char* single_color_shader_path = "Shaders/3D/mine_sphere.glsl";
 const char* sky_shader_path = "Shaders/3D/skybox.glsl";
+const char* text_shader_path = "Shaders/2D/text_rendering.glsl";
+
 using namespace N3D;
 
 class RenderingLayer_3D : public Layer {
@@ -16,9 +19,13 @@ private:
     Camera_3D& camera;
     std::vector<Object_3D*> objects;
     ShaderProgram* single_color_shader = nullptr;
-    
+
     ShaderProgram* sky_shader = nullptr;
     N3D::SkyBox* skybox = nullptr;
+
+    ShaderProgram* text_shader = nullptr;
+    FontManager* text_font = nullptr;
+    std::vector<Text*> text_v;
 
     glm::vec3 background_color;
     bool depth_test_enabled = false;
@@ -26,6 +33,7 @@ public:
     RenderingLayer_3D(Camera_3D& _camera) : camera(_camera) {
         single_color_shader = new ShaderProgram(single_color_shader_path);
         sky_shader = new ShaderProgram(sky_shader_path);
+        text_shader = new ShaderProgram(text_shader_path);
         EnableDepthTest();
     }
 
@@ -83,5 +91,24 @@ public:
             obj->Render();
             single_color_shader->Unbind();
         }
+
+        text_shader->FillUniformMat4f("u_proj", glm::ortho(0.0f, camera.GetScreenWidth(), 0.0f, camera.GetScreenHeight()));
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        if (text_font != nullptr)
+        for (auto& txt : text_v) {
+            txt->FillShader(*text_shader);
+            text_shader->Bind();
+            txt->Render(*text_font);
+            text_shader->Unbind();
+        }
 	}
+
+    void SetTextFont(FontManager& font) {
+        text_font = &font;
+    }
+
+    void AddText(std::string text, glm::vec2 pos, float scale, glm::vec3 color = glm::vec3(0.0f)) {
+        text_v.push_back(new Text(pos, scale, text, color));
+    }
 };

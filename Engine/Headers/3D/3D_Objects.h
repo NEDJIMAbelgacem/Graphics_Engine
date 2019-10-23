@@ -6,3 +6,4 @@
 #include "Objects/TexturedIcosphere.h"
 #include "Objects/ColorfulIcosphere.h"
 #include "Objects/SkyBox.h"
+#include "Objects/Text.h"

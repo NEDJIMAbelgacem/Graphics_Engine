@@ -23,6 +23,8 @@ private:
     N3D::SkyBox* skybox = nullptr;
 
     std::vector<Object_3D*> objects;
+
+    FontManager* font = nullptr;
 public:
     Scene_3D(Application& app, glm::vec3 background_color = glm::vec3(0.0f)) {
         camera = new Camera_3D(glm::vec3(0, 0, -300));
@@ -33,6 +35,9 @@ public:
         app.PushLayer(controller);
         app.PushLayer(scene_control);
 
+        font = new FontManager();
+
+        rendering_layer->SetTextFont(*font);
         rendering_layer->SetBackgroundColor(background_color);
     }
 
@@ -61,5 +66,9 @@ public:
         rendering_layer->Add_3D_Object(obj);
         objects.push_back(&obj);
         scene_control->AddObject(obj);
+    }
+
+    void AddText(std::string txt, glm::vec2 pos, float scale, glm::vec3 color = glm::vec3(0.0f)) {
+        rendering_layer->AddText(txt, pos, scale, color);
     }
 };

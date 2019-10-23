@@ -11,6 +11,7 @@ private:
 	int width, height, bitsPerPixel;
 public:
 	Texture(std::string path, bool flip_on_load = false);
+	Texture(unsigned int _id, int _width, int _height, int _bpp);
     ~Texture();
 
 	void Bind(unsigned int slot = 0);

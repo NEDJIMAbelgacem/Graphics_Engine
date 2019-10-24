@@ -22,8 +22,6 @@ protected:
     VertexArray* vao;
     VertexBuffer* vbo;
 
-    Camera_3D& camera;
-
     glm::vec3 normal;
     glm::vec3 tangent;
 
@@ -32,13 +30,11 @@ protected:
     // unsigned int vao, vbo;
 public:
     Text_3D(glm::vec3 _position, float _scale, std::string _text,
-            Camera_3D& _camera,
             glm::vec3 _normal = glm::vec3(0.0f, 0.0f, -1.0f), 
             glm::vec3 _tangent = glm::vec3(0.0f, 1.0f, 0.0f),
             glm::vec3 _color = glm::vec3(0.0f)
             ) 
         :   Object_3D(_position, glm::vec3(0.0f), glm::vec3(_scale)), 
-            camera(_camera),
             scale(_scale), text(_text), color(_color),
             normal(_normal), tangent(_tangent)
     {
@@ -54,25 +50,21 @@ public:
         // TODO : deallocate buffers
     }
 
+    std::string GetText() { return this->text; }
+    void SetText(std::string text) { this->text = text; }
+
     glm::mat4 GetModelMatrix() {
         glm::mat4 scale = glm::scale(glm::identity<glm::mat4>(), glm::vec3(this->scale));
 
         glm::vec3 a = glm::vec3(0.0f, 0.0f, 1.0f);
-        glm::vec3 b = glm::normalize(position);
+        glm::vec3 b = glm::normalize(normal);
         glm::mat3 r = align_vectors(a, b);
-        // glm::mat3 r = glm::inverse(glm::mat3(
-        //     glm::normalize(this->tangent),
-        //     glm::normalize(glm::cross(this->normal, this->tangent)),
-        //     glm::normalize(this->normal)
-        // ));
         glm::mat4 rotation = glm::mat4(
             glm::vec4(r[0][0], r[0][1], r[0][2], 0.0f),
             glm::vec4(r[1][0], r[1][1], r[1][2], 0.0f),
             glm::vec4(r[2][0], r[2][1], r[2][2], 0.0f),
             glm::vec4(0.0f, 0.0f, 0.0f, 1.0f)
         );
-
-        // rotation = glm::transpose(rotation);
 
         glm::mat4 translation = glm::translate(glm::identity<glm::mat4>(), position);
         return translation * rotation * scale;
@@ -89,8 +81,11 @@ public:
     }
 
     void Render(Font& font) {
-        float x = -0.5f * font[text[0]].size.x, y = -0.5f * font[text[0]].size.y;
+        float width = 0.0f;
+        float height = 0.0f;
 
+        float x = -0.5f * font[text[0]].size.x * scale;
+        float y = -0.5f * font[text[0]].size.y * scale;
         // Activate corresponding render stat
         glCall(glActiveTexture(GL_TEXTURE0));
         vao->Bind();

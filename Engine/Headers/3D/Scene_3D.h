@@ -13,7 +13,7 @@
 #include "3D/CameraController_3D.h"
 #include "Events/Event.h"
 #include "Utilities/Maths.h"
-
+#include "Layers/KeyboardControlLayer.h"
 
 // layers are owned by the layer stack
 class Scene_3D {
@@ -22,6 +22,8 @@ private:
     CameraController_3D* controller = nullptr;
     Camera_3D* camera = nullptr;
     SceneControl_3D* scene_control = nullptr;
+    KeyBoardControlLayer* kb_layer = nullptr;
+    
     N3D::SkyBox* skybox = nullptr;
 
     std::vector<Object_3D*> objects;
@@ -33,12 +35,15 @@ public:
         camera_pos = spherical_to_cartesian_coordinates(300.0f, 0.0f, glm::radians(90.0f));
 
         camera = new Camera_3D(camera_pos);
+
         controller = new CameraController_3D(*camera);
         rendering_layer = new RenderingLayer_3D(*camera);
         scene_control = new SceneControl_3D(*camera);
+        kb_layer = new KeyBoardControlLayer;
         app.PushLayer(rendering_layer);
         app.PushLayer(controller);
         app.PushLayer(scene_control);
+        app.PushLayer(kb_layer);
 
         font = new Font();
 
@@ -76,8 +81,11 @@ public:
         rendering_layer->AddText(txt, pos, scale, color);
     }
 
-    void Add3DText(std::string txt, glm::vec3 pos, float scale, glm::vec3 normal, glm::vec3 tangent, glm::vec3 color = glm::vec3(0.0f)) {
-        Text_3D* t = new Text_3D(pos, scale, txt, *camera, normal, tangent, color);
-        rendering_layer->AddText3D(*t);
+    void Add3DText(Text_3D& text) {
+        rendering_layer->AddText3D(text);
+    }
+
+    void AddKeyAction(int key_code, std::function<void()> f) {
+        kb_layer->AddKeyAction(key_code, f);
     }
 };

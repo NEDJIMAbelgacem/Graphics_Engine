@@ -27,6 +27,8 @@ protected:
     std::map<int, std::vector<int>> children_triangles;
 
     std::vector<int> selected_triangles;
+
+    std::map<int, std::function<void(int)>> tiles_actions;
     
     float radius;
     glm::vec3 color;
@@ -97,7 +99,7 @@ protected:
         return res;
     }
 public:
-    ColorfulIcosphere(glm::vec3 _position, float _radius, glm::vec3 _color, glm::vec3 _rotation = glm::vec3(0.0f), int nb_subdivisions = 2) 
+    ColorfulIcosphere(glm::vec3 _position, float _radius, glm::vec3 _color, glm::vec3 _rotation = glm::vec3(0.0f), int nb_subdivisions = 0) 
         : Object_3D(_position, _rotation), radius(_radius), color(_color) {
         this->vao = new VertexArray();
 
@@ -106,15 +108,6 @@ public:
             subdivisions_offsets.push_back(last_subdivision_offset);
             last_subdivision_offset = SubdivideIcosahedron(faces, last_subdivision_offset);
         }
-
-        // for (auto [tri, par] : parent_triangle) {
-        //     std::cerr << tri << " -> " << par << " -> ";
-        //     for (int i : children_triangles[par]) {
-        //         std::cerr << i << " ";
-        //     }
-        //     std::cerr << std::endl;
-        // }
-
 
         int vertices_size = 3 * (int)vertices.size();
 
@@ -220,6 +213,9 @@ public:
 
     bool HandleMousePressedEvent(MouseButtonPressedEvent& e) {
         if (selected_triangle != -1) ChangleTriangleColor(selected_triangle);
+        if (tiles_actions.find(selected_triangle - last_subdivision_offset / 3) != tiles_actions.end()) {
+            tiles_actions[selected_triangle - last_subdivision_offset / 3](selected_triangle - last_subdivision_offset / 3);
+        }
         return true;
     }
 
@@ -281,6 +277,14 @@ public:
             res.push_back(glm::normalize(glm::vec3(t.x, t.y, t.z)));
         }
         return res;
+    }
+
+    int GetTilesCount() {
+        return (int)faces.size() - last_subdivision_offset / 3;
+    }
+
+    void AddTileAction(int tile_id, std::function<void(int)> f) {
+        this->tiles_actions[tile_id - last_subdivision_offset / 3] = f;
     }
 };
 

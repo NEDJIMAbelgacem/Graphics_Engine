@@ -41,13 +41,20 @@ in vec3 v_ray;
 out vec4 fragColor;
 
 uniform samplerCube u_skybox;
+uniform int u_is_hdr;
+const float gamma = 2.2;
 
 // float LinearizeDepth(float depth) 
 // {
 //     float z = depth * 2.0 - 1.0;
 //     return (2.0 * u_near * u_far) / (u_far + u_near - z * (u_far - u_near));	
 // }
-const float gamma = 2.2;
+
+vec3 gamma_correct(vec3 color) {
+    color = color / (color + vec3(1.0f));
+    color = pow(color, vec3(1.0 / gamma));
+    return color;
+}
 
 void main() {
     u_cameraPos;
@@ -60,9 +67,8 @@ void main() {
     //if (LinearizeDepth(gl_FragCoord.z) >= 0) discard;
     // float depth = LinearizeDepth(gl_FragCoord.z) / u_far;
     vec3 sky_color = texture(u_skybox, ray).rgb;
-    sky_color = sky_color / (sky_color + vec3(1.0f));
-    sky_color = pow(sky_color, vec3(1.0 / gamma));
-	fragColor = vec4(sky_color, 1.0f);
+    if (u_is_hdr == 1) fragColor = vec4(gamma_correct(sky_color), 1.0f);
+    else fragColor = vec4(sky_color, 1.0f);
     // discard;
     // fragColor = u_proj * vec4(v_pos, 1.0f);//vec4(1.0f, 0.0f, 0.0f, 1.0f);
     

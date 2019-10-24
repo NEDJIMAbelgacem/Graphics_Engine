@@ -46,6 +46,7 @@ public:
     void FillShader(ShaderProgram& prg) {
 		this->Bind(1);
 		prg.FillUniform1i("u_skybox", 1);
+		prg.FillUniform1i("u_is_hdr", this->is_hdr);
 		// this->Unbind();
 	}
 

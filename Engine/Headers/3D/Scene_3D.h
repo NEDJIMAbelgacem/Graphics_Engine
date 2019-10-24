@@ -12,6 +12,8 @@
 #include "3D/SceneControl_3D.h"
 #include "3D/CameraController_3D.h"
 #include "Events/Event.h"
+#include "Utilities/Maths.h"
+
 
 // layers are owned by the layer stack
 class Scene_3D {
@@ -24,10 +26,13 @@ private:
 
     std::vector<Object_3D*> objects;
 
-    FontManager* font = nullptr;
+    Font* font = nullptr;
 public:
     Scene_3D(Application& app, glm::vec3 background_color = glm::vec3(0.0f)) {
-        camera = new Camera_3D(glm::vec3(0, 0, -300));
+        glm::vec3 camera_pos;
+        camera_pos = spherical_to_cartesian_coordinates(300.0f, 0.0f, glm::radians(90.0f));
+
+        camera = new Camera_3D(camera_pos);
         controller = new CameraController_3D(*camera);
         rendering_layer = new RenderingLayer_3D(*camera);
         scene_control = new SceneControl_3D(*camera);
@@ -35,7 +40,7 @@ public:
         app.PushLayer(controller);
         app.PushLayer(scene_control);
 
-        font = new FontManager();
+        font = new Font();
 
         rendering_layer->SetTextFont(*font);
         rendering_layer->SetBackgroundColor(background_color);
@@ -62,7 +67,6 @@ public:
     glm::vec3 GetBackgroundColor() { return rendering_layer->GetBackgroundColor(); }
 
     void AddObject(Object_3D& obj) {
-        // scene_control->AddObject(obj);
         rendering_layer->Add_3D_Object(obj);
         objects.push_back(&obj);
         scene_control->AddObject(obj);
@@ -70,5 +74,10 @@ public:
 
     void AddText(std::string txt, glm::vec2 pos, float scale, glm::vec3 color = glm::vec3(0.0f)) {
         rendering_layer->AddText(txt, pos, scale, color);
+    }
+
+    void Add3DText(std::string txt, glm::vec3 pos, float scale, glm::vec3 normal, glm::vec3 tangent, glm::vec3 color = glm::vec3(0.0f)) {
+        Text_3D* t = new Text_3D(pos, scale, txt, *camera, normal, tangent, color);
+        rendering_layer->AddText3D(*t);
     }
 };

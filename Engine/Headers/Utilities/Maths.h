@@ -44,3 +44,33 @@ bool GetBaryCentricCoordinates(glm::vec3 p, glm::vec3 v0, glm::vec3 v1, glm::vec
     alpha = 1 - gamma - beta;
     return (alpha >= 0.0f && beta >= 0.0f && gamma >= 0.0f && alpha <= 1.0f && beta <= 1.0f && gamma <= 1.0f);
 }
+
+glm::vec3 cartesian_to_spherical_coordinates(float x, float y, float z) {
+    float r = glm::sqrt(x * x + y * y + z * z);
+    float phi = glm::atan(z, x);
+    float theta = glm::acos(y / r);
+    return glm::vec3(r, phi, theta);
+}
+
+glm::vec3 spherical_to_cartesian_coordinates(float r, float phi, float theta) {
+    return r * glm::vec3(glm::sin(theta) * glm::cos(phi), glm::cos(theta), glm::sin(theta) * glm::sin(phi));
+}
+
+// get rotation matrix that aligns a to b
+glm::mat3 align_vectors(glm::vec3 a, glm::vec3 b) {
+    glm::vec3 v = glm::cross(a, b);
+    float s = glm::length(v);
+    float c = glm::dot(a, b);
+    glm::mat3 m;
+    m[0] = glm::vec3(0.0f, v.z, -v.y);
+    m[1] = glm::vec3(-v.z, 0.0f, v.x);
+    m[2] = glm::vec3(v.y, -v.x, 0.0f);
+    glm::mat3 r = glm::identity<glm::mat3>() + m + ((1.0f - c) / s / s) * m * m;
+    glm::vec3 a2 = glm::normalize(r * a);
+    if (glm::abs(a2.x - b.x) > 0.001f || glm::abs(a2.y - b.y) > 0.001f || glm::abs(a2.z - b.z) > 0.01f) {
+        N3D_CORE_TRACE("a {} {} {}", a2.x, a2.y, a2.z);
+        N3D_CORE_TRACE("b {} {} {}", b.x, b.y, b.z);
+        __debugbreak();
+    }
+    return r;
+}

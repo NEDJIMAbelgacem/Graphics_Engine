@@ -10,13 +10,13 @@ struct Glyph {
     int advance;
 };
 
-class FontManager {
+class Font {
 private:
     FT_Library ft;
     FT_Face face;
     std::map<char, Glyph> ascii_glyphs;
 public:
-    FontManager(std::string font_path = "Resources/Fonts/arial.ttf") {
+    Font(std::string font_path = "Resources/Fonts/arial.ttf") {
         if (FT_Init_FreeType(&ft))
             N3D_CORE_FATAL("ERROR::FREETYPE: Could not init FreeType Library" );
 
@@ -65,7 +65,7 @@ public:
         FT_Done_FreeType(ft);
     }
 
-    ~FontManager() {
+    ~Font() {
 
     }
 

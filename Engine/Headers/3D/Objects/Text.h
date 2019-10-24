@@ -4,7 +4,7 @@
 #include "Utilities/Maths.h"
 #include "Sphere.h"
 #include "Core/Texture.h"
-#include "FontManager.h"
+#include "Font.h"
 
 namespace N3D {
 
@@ -16,19 +16,16 @@ protected:
     std::string text;
     glm::vec3 color;
 
-    unsigned int vao, vbo;
+    VertexArray* vao = nullptr;
+    VertexBuffer* vbo = nullptr;
 public:
     Text(glm::vec2 _position, float _scale, std::string _text, glm::vec3 _color = glm::vec3(0.0f)) 
         : position(_position), scale(_scale), text(_text), color(_color) {
-        glCall(glGenVertexArrays(1, &vao));
-        glCall(glGenBuffers(1, &vbo));
-        glCall(glBindVertexArray(vao));
-        glCall(glBindBuffer(GL_ARRAY_BUFFER, vbo));
-        glCall(glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * 6 * 4, NULL, GL_DYNAMIC_DRAW));
-        glCall(glEnableVertexAttribArray(0));
-        glCall(glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(GLfloat), 0));
-        glCall(glBindBuffer(GL_ARRAY_BUFFER, 0));
-        glCall(glBindVertexArray(0));
+        vao = new VertexArray;
+        vbo = new VertexBuffer(NULL, sizeof(GLfloat) * 6 * 4, VertexBufferType::DYNAMIC_DRAW);
+        BufferLayout layout;
+		layout.AddElement<float>(4, 0);
+		vao->AddBuffer(*vbo, layout);
     }
 
     ~Text() {
@@ -40,16 +37,15 @@ public:
         prg.FillUniform1i("u_text", 0);
     }
 
-    void Render(FontManager& font) {
+    void Render(Font& font) {
         float x = position.x, y = position.y;
 
         // Activate corresponding render stat
         glCall(glActiveTexture(GL_TEXTURE0));
-        glCall(glBindVertexArray(vao));
+        vao->Bind();
 
         // Iterate through all characters
-        for (char c : text)
-        {
+        for (char c : text) {
             Glyph& ch = font[c];
 
             GLfloat xpos = x + ch.bearing.x * scale;
@@ -69,17 +65,14 @@ public:
             };
             // Render glyph texture over quad
             ch.texture->Bind(0);
-            // glBindTexture(GL_TEXTURE_2D, ch);
             // Update content of VBO memory
-            glCall(glBindBuffer(GL_ARRAY_BUFFER, vbo));
-            glCall(glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertices), vertices)); 
-            glCall(glBindBuffer(GL_ARRAY_BUFFER, 0));
+            vbo->ModifyData(0, 6 * 4 * sizeof(float), vertices);
             // Render quad
             glCall(glDrawArrays(GL_TRIANGLES, 0, 6));
             // Now advance cursors for next glyph (note that advance is number of 1/64 pixels)
             x += (ch.advance >> 6) * scale; // Bitshift by 6 to get value in pixels (2^6 = 64)
         }
-        glCall(glBindVertexArray(0));
+        vao->Unbind();
         glCall(glBindTexture(GL_TEXTURE_2D, 0));
     }
 };

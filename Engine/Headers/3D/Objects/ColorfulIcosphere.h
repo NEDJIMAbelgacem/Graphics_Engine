@@ -176,7 +176,6 @@ public:
         colors_ubo->Bind(prg, "u_colors");
         selected_triangles_ubo->Bind(prg, "u_selected_triangles");
         prg.FillUniformMat4f("u_model", model_m);
-        // prg.FillUniform1i("u_selected_triangle", mouse_over_triangle);
     }
 
     void Render() override {
@@ -240,6 +239,48 @@ public:
     void ChangleTriangleColor(int triangle_index) {
         colors_buffer[triangle_index - last_subdivision_offset / 3]++;
         LoadUniformBufferData();
+    }
+
+    std::vector<glm::vec3> GetTrianglesCenters() {
+        std::vector<glm::vec3> res;
+        glm::mat4 m = this->GetModelMatrix();
+        for (int i = last_subdivision_offset; i < faces.size(); i += 3) {
+            glm::vec3 v0 = vertices[faces[i]];
+            // res.push_back(glm::vec3(m * glm::vec4(v0, 1.0f)));
+            glm::vec3 v1 = vertices[faces[i + 1]];
+            glm::vec3 v2 = vertices[faces[i + 2]];
+            glm::vec4 center = m * glm::vec4((v0 + v1 + v2) / 3.0f, 1.0f);
+            res.push_back(1.01f * glm::vec3(center.x, center.y, center.z));
+        }
+        return res;
+    }
+
+    std::vector<glm::vec3> GetTrianglesNormals() {
+        std::vector<glm::vec3> res;
+        for (int i = last_subdivision_offset; i < faces.size(); i += 3) {
+            glm::vec3 v0 = vertices[faces[i]];
+            glm::vec3 v1 = vertices[faces[i + 1]];
+            glm::vec3 v2 = vertices[faces[i + 2]];
+            glm::vec3 center = (1.0f / 3.0f) * (v0 + v1 + v2);
+            glm::vec4 v = this->GetModelMatrix() * glm::vec4(center.x, center.y, center.z, 1.0f);
+            center = glm::vec3(v.x, v.y, v.z);
+            res.push_back(glm::normalize(center));
+        }
+        return res;
+    }
+
+    std::vector<glm::vec3> GetTrianglesTangents() {
+        std::vector<glm::vec3> res;
+        for (int i = last_subdivision_offset; i < faces.size(); i += 3) {
+            glm::vec3 v0 = vertices[faces[i]];
+            glm::vec3 v1 = vertices[faces[i + 1]];
+            glm::vec3 v2 = vertices[faces[i + 2]];
+            glm::vec3 center = (1.0f / 3.0f) * (v0 + v1 + v2);
+            glm::vec3 tangent = center - v0;
+            glm::vec4 t = this->GetModelMatrix() * glm::vec4(tangent, 0.0f);
+            res.push_back(glm::normalize(glm::vec3(t.x, t.y, t.z)));
+        }
+        return res;
     }
 };
 

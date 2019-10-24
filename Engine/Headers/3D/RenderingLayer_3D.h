@@ -5,12 +5,13 @@
 #include "Window/Application.h"
 #include "3D/Camera_3D.h"
 #include "3D/3D_Objects.h"
-#include "FontManager.h"
+#include "Font.h"
 
 // const char* single_color_shader_path = "Shaders/3D/single_colored.glsl";
 const char* single_color_shader_path = "Shaders/3D/mine_sphere.glsl";
 const char* sky_shader_path = "Shaders/3D/skybox.glsl";
 const char* text_shader_path = "Shaders/2D/text_rendering.glsl";
+const char* text_3d_shader_path = "Shaders/3D/text_3d.glsl";
 
 using namespace N3D;
 
@@ -24,8 +25,11 @@ private:
     N3D::SkyBox* skybox = nullptr;
 
     ShaderProgram* text_shader = nullptr;
-    FontManager* text_font = nullptr;
+    Font* text_font = nullptr;
     std::vector<Text*> text_v;
+
+    ShaderProgram* text_3d_shader = nullptr;
+    std::vector<Text_3D*> text3d_v;
 
     glm::vec3 background_color;
     bool depth_test_enabled = false;
@@ -34,6 +38,7 @@ public:
         single_color_shader = new ShaderProgram(single_color_shader_path);
         sky_shader = new ShaderProgram(sky_shader_path);
         text_shader = new ShaderProgram(text_shader_path);
+        text_3d_shader = new ShaderProgram(text_3d_shader_path);
         EnableDepthTest();
     }
 
@@ -91,7 +96,7 @@ public:
             obj->Render();
             single_color_shader->Unbind();
         }
-
+        camera.FillShader(*text_3d_shader);
         text_shader->FillUniformMat4f("u_proj", glm::ortho(0.0f, camera.GetScreenWidth(), 0.0f, camera.GetScreenHeight()));
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -102,13 +107,24 @@ public:
             txt->Render(*text_font);
             text_shader->Unbind();
         }
+        if (text_font != nullptr)
+        for (auto& txt : text3d_v) {
+            txt->FillShader(*text_3d_shader);
+            text_3d_shader->Bind();
+            txt->Render(*text_font);
+            text_3d_shader->Unbind();
+        }
 	}
 
-    void SetTextFont(FontManager& font) {
+    void SetTextFont(Font& font) {
         text_font = &font;
     }
 
     void AddText(std::string text, glm::vec2 pos, float scale, glm::vec3 color = glm::vec3(0.0f)) {
         text_v.push_back(new Text(pos, scale, text, color));
+    }
+
+    void AddText3D(Text_3D& txt) {
+        text3d_v.push_back(&txt);
     }
 };

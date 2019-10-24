@@ -38,7 +38,7 @@ private:
     }
 public:
 	Camera_3D(
-            glm::vec3 position, float fov = glm::radians(45.0f), 
+            glm::vec3 position, float fov = glm::radians(60.0f), 
             float screen_width = WINDOW_WIDTH, float screen_height = WINDOW_HEIGHT, 
             float near_plane = 0.1, float far_plane = 4000.0f, 
             glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f), float yaw = YAW, float pitch = PITCH
@@ -60,6 +60,8 @@ public:
         this->camera_pos = pos;
 	    UpdateCameraVectors();
     }
+
+    glm::vec3 GetPosition() { return this->camera_pos; }
 
 	void SetAngles(float pitch, float yaw) {
         this->pitch = pitch;
@@ -94,8 +96,18 @@ public:
     }
 
 	glm::mat4 GetViewMatrix() {
-	    return glm::lookAt(camera_pos, glm::vec3(0.0f), camera_up);
+        // UpdateCameraVectors();
+        // if (glm::dot(camera_up, glm::vec3(0.0f, 1.0f, 0.0f)) > 0.0f) {
+        //     N3D_CORE_TRACE("{}", -1);
+        //     return glm::lookAt(camera_pos, glm::vec3(0.0f), -camera_up);
+        // }
+        // N3D_CORE_TRACE("{}", 1);
+	    return glm::lookAt(camera_pos, glm::vec3(0.0f), world_up);
 	    // return glm::lookAt(camera_pos, camera_pos + camera_front, camera_up);
+    }
+
+    glm::vec3 GetCameraUp() {
+        return camera_up;
     }
 
     void MoveUp(float distance) {

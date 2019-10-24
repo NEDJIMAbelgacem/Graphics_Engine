@@ -32,7 +32,6 @@ void main() {
 
 uniform mat4 u_proj;
 uniform mat4 u_view;
-uniform float u_near;
 uniform float u_far;
 uniform vec3 u_cameraPos;
 
@@ -48,18 +47,22 @@ uniform samplerCube u_skybox;
 //     float z = depth * 2.0 - 1.0;
 //     return (2.0 * u_near * u_far) / (u_far + u_near - z * (u_far - u_near));	
 // }
+const float gamma = 2.2;
 
 void main() {
     u_cameraPos;
     u_skybox;
     u_proj;
-    vec4 pixel_pos = inverse(u_proj) * vec4(v_pos, 1.0f);
+    vec4 pixel_pos = inverse(u_proj) * vec4(v_pos.xy, 0.0f, 1.0f);
     pixel_pos.w = 1.0f;
     pixel_pos = inverse(u_view) * pixel_pos;
     vec3 ray = normalize(pixel_pos.xyz - u_cameraPos);
     //if (LinearizeDepth(gl_FragCoord.z) >= 0) discard;
     // float depth = LinearizeDepth(gl_FragCoord.z) / u_far;
-	fragColor = vec4(texture(u_skybox, ray).rgb, 1.0f);
+    vec3 sky_color = texture(u_skybox, ray).rgb;
+    sky_color = sky_color / (sky_color + vec3(1.0f));
+    sky_color = pow(sky_color, vec3(1.0 / gamma));
+	fragColor = vec4(sky_color, 1.0f);
     // discard;
     // fragColor = u_proj * vec4(v_pos, 1.0f);//vec4(1.0f, 0.0f, 0.0f, 1.0f);
     

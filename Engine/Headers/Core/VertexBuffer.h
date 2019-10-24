@@ -1,11 +1,14 @@
 #pragma once
 #include "Core/Common.h"
 
+enum class VertexBufferType { STATIC_DRAW, DYNAMIC_DRAW };
+
 class VertexBuffer {
 private:
 	unsigned int id;
 public:
-	VertexBuffer(const void* data, unsigned int size);
+	VertexBuffer(const void* data, unsigned int size, VertexBufferType type = VertexBufferType::STATIC_DRAW);
+	~VertexBuffer();
 
 	void Bind() const;
 
@@ -13,5 +16,5 @@ public:
 
 	unsigned int GetId() const;
 
-	~VertexBuffer();
+	void ModifyData(unsigned int offset_in_bytes, unsigned int size, void* data);
 };

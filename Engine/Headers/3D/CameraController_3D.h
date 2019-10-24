@@ -49,8 +49,8 @@ public:
     }
 
     bool OnMouseScrolled(MouseScrolledEvent& e) {
-        if (e.GetYOffset() < 0) camera.MoveForward(1);
-        if (e.GetYOffset() > 0) camera.MoveForward(-1);
+        if (e.GetYOffset() < 0) camera.MoveForward(10.0f);
+        if (e.GetYOffset() > 0) camera.MoveForward(-10.0f);
         return true;
     }
 

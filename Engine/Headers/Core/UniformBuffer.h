@@ -42,7 +42,6 @@ public:
     void ModifyData(unsigned int offset_in_bytes, unsigned int size, void* data) {
         glCall(glBindBuffer(GL_UNIFORM_BUFFER, id));
         glCall(glBufferSubData(GL_UNIFORM_BUFFER, offset_in_bytes, size, data)); 
-        // glCall(glBufferData(GL_UNIFORM_BUFFER, size, data, GL_STATIC_DRAW));
         glCall(glBindBuffer(GL_UNIFORM_BUFFER, 0));
     }
 };

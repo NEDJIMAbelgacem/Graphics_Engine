@@ -56,12 +56,16 @@ public:
             float dx = e.GetX() - last_position.x;
             float dy = e.GetY() - last_position.y;
             last_position = glm::vec2(e.GetX(), e.GetY());
-            for (Object_3D* obj : objects) {
-                glm::vec3 rotation = obj->GetRotation();
-                rotation.y += dx * 0.01f;
-                rotation.x += -dy * 0.01f;
-                obj->SetRotation(rotation);
-            }
+            glm::vec3 pos = cam.GetPosition();
+            glm::vec3 v = cartesian_to_spherical_coordinates(pos.x, pos.y, pos.z);
+            float r = v.x;
+            float phi = v.y;
+            float theta = v.z;
+            phi += dx * 0.01f;
+            // if (glm::degrees(theta + dy * 0.01f) < 90.0f && glm::degrees(theta + dy * 0.01f) > -90.0f)
+                theta += -dy * 0.01f;
+            pos = spherical_to_cartesian_coordinates(r, phi, theta);
+            cam.SetPosition(pos);
         } else {
             auto [origin, ray] = cam.GenerateRayFrom(e.GetX(), e.GetY());
             for (Object_3D* obj : objects) {

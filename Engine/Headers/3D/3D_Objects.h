@@ -7,3 +7,4 @@
 #include "Objects/ColorfulIcosphere.h"
 #include "Objects/SkyBox.h"
 #include "Objects/Text.h"
+#include "Objects/Text_3D.h"

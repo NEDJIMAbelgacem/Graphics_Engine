@@ -23,20 +23,14 @@ protected:
     VertexBuffer* vbo;
 
     glm::vec3 normal;
-    glm::vec3 tangent;
-
-    glm::vec3 pos;
 
     // unsigned int vao, vbo;
 public:
     Text_3D(glm::vec3 _position, float _scale, std::string _text,
-            glm::vec3 _normal = glm::vec3(0.0f, 0.0f, -1.0f), 
-            glm::vec3 _tangent = glm::vec3(0.0f, 1.0f, 0.0f),
-            glm::vec3 _color = glm::vec3(0.0f)
+            glm::vec3 _normal = glm::vec3(0.0f, 0.0f, -1.0f), glm::vec3 _color = glm::vec3(0.0f)
             ) 
         :   Object_3D(_position, glm::vec3(0.0f), glm::vec3(_scale)), 
-            scale(_scale), text(_text), color(_color),
-            normal(_normal), tangent(_tangent)
+            scale(_scale), text(_text), color(_color), normal(_normal)
     {
         vao = new VertexArray;
         vbo = new VertexBuffer(NULL, 6 * 5 * sizeof(float), VertexBufferType::DYNAMIC_DRAW);

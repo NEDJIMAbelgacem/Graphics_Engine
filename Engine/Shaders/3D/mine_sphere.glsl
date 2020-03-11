@@ -49,11 +49,9 @@ void main() {
 
     int color_id = color_index[gl_VertexID / 3 / 4][gl_VertexID / 3 % 4] % 3;
 
-    if (color_id == 0) v_color = vec3(1.0f, 0.0f, 0.0f);
+    if (color_id == 0) v_color = vec3(0.0f, 0.0f, 1.0f);
     else if (color_id == 1) v_color = vec3(0.0f, 1.0f, 0.0f);
-    else if (color_id == 2) v_color = vec3(0.0f, 0.0f, 1.0f);
-    else if (color_id == 3) v_color = vec3(1.0f, 0.0f, 1.0f);
-    else if (color_id == 4) v_color = vec3(0.0f, 0.0f, 0.0f);
+    else if (color_id == 2) v_color = vec3(1.0f, 0.0f, .0f);
     else v_color = vec3(1.0f, 1.0f, 1.0f);
 }
 

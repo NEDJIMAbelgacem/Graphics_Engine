@@ -13,25 +13,27 @@ namespace N3D {
 #define tangent_location 4
 #define bitangent_location 5
 
-class ColorfulIcosphere : public Object_3D {
+class MineField : public Object_3D {
 protected:
     VertexArray* vao = nullptr;
     VertexBuffer* vertices_vbo = nullptr;
     VertexBuffer* normals_vbo = nullptr;
     IndexBuffer* ibo = nullptr;
     UniformBuffer* colors_ubo = nullptr;
-    UniformBuffer* selected_triangles_ubo = nullptr;
+    UniformBuffer* selected_tiles_ubo = nullptr;
 
     std::vector<int> colors_buffer;
-    std::map<int, int> parent_triangle;
-    std::map<int, std::vector<int>> children_triangles;
+    std::map<int, int> parent_tile;
+    std::map<int, std::vector<int>> children_tiles;
 
-    std::vector<int> selected_triangles;
+    std::vector<int> selected_tiles;
 
     std::map<int, std::function<void(int, int)>> tiles_actions;
     
     float radius;
     glm::vec3 color;
+
+    const int tile_size = 3;
 protected:
     std::vector<glm::vec3> vertices;
     // TODO : add normals
@@ -46,44 +48,44 @@ protected:
         return (int)vertices.size() - 1;
     }
     // returns the offset of the last processed subdivision
-    int SubdivideIcosahedron(std::vector<int>& tiles, int offset) {
+    int SubdivideTiles(std::vector<int>& tiles, int offset) {
         int nb_elements = (int)tiles.size() - offset;
         int res = (int)tiles.size();
-        for (int i = offset; i < offset + nb_elements; i += 3) {
+        for (int i = offset; i < offset + nb_elements; i += tile_size) {
             int a = FindMiddle(tiles[i], tiles[i + 1]);
             int b = FindMiddle(tiles[i + 1], tiles[i + 2]);
             int c = FindMiddle(tiles[i + 2], tiles[i]);
 
-            int current_triangle = i / 3;
+            int current_tile = i / tile_size;
             
 
-            children_triangles[current_triangle].push_back((int)tiles.size() / 3);
-            parent_triangle[(int)tiles.size() / 3] = current_triangle;
+            children_tiles[current_tile].push_back((int)tiles.size() / 3);
+            parent_tile[(int)tiles.size() / 3] = current_tile;
             tiles.push_back(tiles[i]);
             tiles.push_back(a);
             tiles.push_back(c);
             
-            children_triangles[current_triangle].push_back((int)tiles.size() / 3);
-            parent_triangle[(int)tiles.size() / 3] = current_triangle;
+            children_tiles[current_tile].push_back((int)tiles.size() / 3);
+            parent_tile[(int)tiles.size() / 3] = current_tile;
             tiles.push_back(tiles[i + 1]);
             tiles.push_back(b); 
             tiles.push_back(a);
             
-            children_triangles[current_triangle].push_back((int)tiles.size() / 3);
-            parent_triangle[(int)tiles.size() / 3] = current_triangle;
+            children_tiles[current_tile].push_back((int)tiles.size() / 3);
+            parent_tile[(int)tiles.size() / 3] = current_tile;
             tiles.push_back(tiles[i + 2]); 
             tiles.push_back(c);
             tiles.push_back(b);
 
-            children_triangles[current_triangle].push_back((int)tiles.size() / 3);
-            parent_triangle[(int)tiles.size() / 3] = current_triangle;
+            children_tiles[current_tile].push_back((int)tiles.size() / 3);
+            parent_tile[(int)tiles.size() / 3] = current_tile;
             tiles.push_back(a);
             tiles.push_back(b); 
             tiles.push_back(c);
         }
         return res;
     }
-    std::vector<int> ConstructInitialIcosahedron() {
+    std::vector<int> ConstructInitialTiles() {
         float t = (1.0f + glm::sqrt(5.0f)) / 2.0f;
         vertices = {
             {-1, t, 0}, {1, t, 0}, {-1, -t, 0}, {1, -t, 0}, 
@@ -122,14 +124,14 @@ protected:
         }
     }
 public:
-    ColorfulIcosphere(glm::vec3 _position, float _radius, glm::vec3 _color, glm::vec3 _rotation = glm::vec3(0.0f), int nb_subdivisions = 2) 
+    MineField(glm::vec3 _position, float _radius, glm::vec3 _color, glm::vec3 _rotation = glm::vec3(0.0f), int nb_subdivisions = 2) 
         : Object_3D(_position, _rotation), radius(_radius), color(_color) {
         this->vao = new VertexArray();
 
-        faces = ConstructInitialIcosahedron();
+        faces = ConstructInitialTiles();
         for (int i = 0; i < nb_subdivisions; ++i) {
             subdivisions_offsets.push_back(last_subdivision_offset);
-            last_subdivision_offset = SubdivideIcosahedron(faces, last_subdivision_offset);
+            last_subdivision_offset = SubdivideTiles(faces, last_subdivision_offset);
         }
 
         int vertices_size = 3 * (int)vertices.size();
@@ -152,19 +154,19 @@ public:
         InitColorsBuffer();
     }
 
-    ~ColorfulIcosphere() {
+    ~MineField() {
         delete vao;
         // delete ibo;
         delete vertices_vbo;
     }
 
     void InitColorsBuffer() {
-         for (int i = last_subdivision_offset / 3; i < (int)faces.size() / 3; ++i) {
+        for (int i = last_subdivision_offset / 3; i < (int)faces.size() / 3; ++i) {
             colors_buffer.push_back(0);
         }
-        colors_ubo = new UniformBuffer((int)colors_buffer.size() * sizeof(int), 2);
+        colors_ubo = new UniformBuffer((int)colors_buffer.size() * sizeof(int), 3);
 
-        selected_triangles_ubo = new UniformBuffer((int)4000 * sizeof(int), 3);
+        selected_tiles_ubo = new UniformBuffer((int)4000 * sizeof(int), 2);
         LoadColorsBuffer();
         LoadSelectedTilesBuffer();
     }
@@ -177,11 +179,11 @@ public:
     }
 
     void LoadSelectedTilesBuffer() {
-        int* selected_triangles_arr = new int[1 + selected_triangles.size()];
-        selected_triangles_arr[0] = (int)selected_triangles.size();
-        for (int i = 0; i < selected_triangles.size(); ++i) selected_triangles_arr[1 + i] = selected_triangles[i];
-        selected_triangles_ubo->ModifyData(0, (1 + (int)selected_triangles.size()) * sizeof(int), &selected_triangles_arr[0]);
-        delete [] selected_triangles_arr;
+        int* selected_tiles_arr = new int[1 + selected_tiles.size()];
+        selected_tiles_arr[0] = (int)selected_tiles.size();
+        for (int i = 0; i < selected_tiles.size(); ++i) selected_tiles_arr[1 + i] = selected_tiles[i];
+        selected_tiles_ubo->ModifyData(0, (1 + (int)selected_tiles.size()) * sizeof(int), &selected_tiles_arr[0]);
+        delete [] selected_tiles_arr;
     }
 
     glm::mat4 GetModelMatrix() {
@@ -196,7 +198,7 @@ public:
     void FillShader(ShaderProgram& prg) {
         glm::mat4 model_m = this->GetModelMatrix();
         colors_ubo->Bind(prg, "u_colors");
-        selected_triangles_ubo->Bind(prg, "u_selected_triangles");
+        selected_tiles_ubo->Bind(prg, "u_selected_tiles");
         prg.FillUniformMat4f("u_model", model_m);
     }
 
@@ -209,14 +211,14 @@ public:
         vao->Unbind(); 
     }
 
-    int selected_triangle = -1;
-    int mouse_over_triangle = -1;
+    int selected_tile = -1;
+    int mouse_over_tile = -1;
 
     bool DoIntersect(glm::vec3 origin, glm::vec3 ray) {
         origin = this->GetModelMatrixInverse() * glm::vec4(origin, 1.0f);
         ray = this->GetModelMatrixInverse() * glm::vec4(ray, 0.0f);
         ray = glm::normalize(ray);
-        int intersected_triangle = -1;
+        int intersected_tile = -1;
         float distance_from_origin = 10e6;
         for (int i = last_subdivision_offset; i < faces.size(); i += 3) {
             glm::vec3 v0 = vertices[faces[i]];
@@ -231,43 +233,43 @@ public:
             float d = glm::distance(p, origin);
             if (d < distance_from_origin) {
                 distance_from_origin = d;
-                intersected_triangle = i / 3;
+                intersected_tile = i / 3;
             }
             
         }
-        selected_triangle = intersected_triangle;
+        selected_tile = intersected_tile;
         return true;
     }
 
     bool HandleMousePressedEvent(MouseButtonPressedEvent& e) {
-        if (tiles_actions.find(selected_triangle - last_subdivision_offset / 3) != tiles_actions.end()) {
-            tiles_actions[selected_triangle - last_subdivision_offset / 3](e.GetMouseButton(), selected_triangle - last_subdivision_offset / 3);
+        if (tiles_actions.find(selected_tile - last_subdivision_offset / 3) != tiles_actions.end()) {
+            tiles_actions[selected_tile - last_subdivision_offset / 3](e.GetMouseButton(), selected_tile - last_subdivision_offset / 3);
         }
         return true;
     }
 
     bool HandleMouseMovedEvent(MouseMovedEvent& e) {
         const int parent_level = 3;
-        if (selected_triangle != -1) {
-            selected_triangles.clear();
-            // int parent = parent_triangle[selected_triangle];
-            // for (int child : children_triangles[parent]) {
-            //     selected_triangles.push_back(child - last_subdivision_offset / 3);
+        if (selected_tile != -1) {
+            selected_tiles.clear();
+            // int parent = parent_tile[selected_tile];
+            // for (int child : children_tiles[parent]) {
+            //     selected_tiles.push_back(child - last_subdivision_offset / 3);
             // }
-            selected_triangles = tile_neighbours[selected_triangle - last_subdivision_offset / 3];
-            selected_triangles.push_back(selected_triangle - last_subdivision_offset / 3);
+            selected_tiles = tile_neighbours[selected_tile - last_subdivision_offset / 3];
+            selected_tiles.push_back(selected_tile - last_subdivision_offset / 3);
             LoadSelectedTilesBuffer();
         }
         return true;
     }
 
-    void ChangleTriangleColor(int triangle_index, int color_index) {
-        colors_buffer[triangle_index] = color_index;
+    void ChangleTriangleColor(int tile_index, int color_index) {
+        colors_buffer[tile_index] = color_index;
         LoadColorsBuffer();
     }
 
-    int GetTriangleColorIndex(int triangle_index) {
-        return colors_buffer[triangle_index - last_subdivision_offset / 3];
+    int GetTriangleColorIndex(int tile_index) {
+        return colors_buffer[tile_index - last_subdivision_offset / 3];
     }
 
     std::vector<glm::vec3> GetTrianglesCenters() {

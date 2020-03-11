@@ -24,10 +24,15 @@ public:
 
     virtual bool OnMouseMoved(MouseMovedEvent& e) { return false; }
 
+    virtual bool OnKeyPressed(KeyPressedEvent& e) { return false; }
+    virtual bool OnKeyReleased(KeyReleasedEvent& e) { return false; }
+
 	void OnEvent(Event& event) override {
         EventDispatcher dispatcher(event);
         dispatcher.Dispatch<MouseMovedEvent>(BIND_EVENT_FN(BaseSceneController::OnMouseMoved));
         dispatcher.Dispatch<MouseButtonPressedEvent>(BIND_EVENT_FN(BaseSceneController::OnMouseButtonPressed));
         dispatcher.Dispatch<MouseButtonReleasedEvent>(BIND_EVENT_FN(BaseSceneController::OnMouseButtonReleased));
+        dispatcher.Dispatch<KeyPressedEvent>(BIND_EVENT_FN(BaseSceneController::OnKeyPressed));
+        dispatcher.Dispatch<KeyReleasedEvent>(BIND_EVENT_FN(BaseSceneController::OnKeyReleased));
 	}
 };

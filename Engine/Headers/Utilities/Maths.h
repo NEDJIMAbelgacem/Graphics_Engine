@@ -45,6 +45,8 @@ bool GetBaryCentricCoordinates(glm::vec3 p, glm::vec3 v0, glm::vec3 v1, glm::vec
     return (alpha >= 0.0f && beta >= 0.0f && gamma >= 0.0f && alpha <= 1.0f && beta <= 1.0f && gamma <= 1.0f);
 }
 
+
+// WARNING : cartesian_to_spherical_coordinates and spherical_to_cartesian_coordinates somehow don't work properly
 glm::vec3 cartesian_to_spherical_coordinates(float x, float y, float z) {
     float r = glm::sqrt(x * x + y * y + z * z);
     float phi = glm::atan(z, x);
@@ -53,7 +55,18 @@ glm::vec3 cartesian_to_spherical_coordinates(float x, float y, float z) {
 }
 
 glm::vec3 spherical_to_cartesian_coordinates(float r, float phi, float theta) {
-    return r * glm::vec3(glm::sin(theta) * glm::cos(phi), glm::cos(theta), glm::sin(theta) * glm::sin(phi));
+    return r * glm::normalize(glm::vec3(glm::sin(theta) * glm::cos(phi), glm::cos(theta), glm::sin(theta) * glm::sin(phi)));
+}
+
+// polar coordinates utilities
+glm::vec2 cartesian_to_polar_coordinates(float x, float y) {
+    float r =  glm::sqrt(x * x + y * y);
+    float theta = glm::atan(y, x);
+    return glm::vec2(r, theta);
+}
+
+glm::vec2 polar_to_cartesian_coordinates(float r, float theta) {
+    return r * glm::vec2(glm::cos(theta), glm::sin(theta));
 }
 
 // get rotation matrix that aligns a to b

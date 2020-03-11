@@ -13,13 +13,14 @@ const float _MAX_YAW = 360.0f;
 
 class Camera_3D : public AbstractCamera {
 private:
-	glm::vec3 camera_pos;
-	glm::vec3 camera_right;
-	glm::vec3 camera_up;
-	glm::vec3 camera_front;
-	glm::vec3 world_up;
+    glm::vec3 camera_pos;
+
+    glm::vec3 camera_right;
+    glm::vec3 camera_up;
+    glm::vec3 camera_front;
+    glm::vec3 world_up;
     float pitch;
-	float yaw;
+    float yaw;
 
     float near_plane, far_plane;
     float field_of_view;
@@ -30,18 +31,21 @@ private:
     // float screen_width, screen_height;
 private:
     void UpdateCameraVectors() {
-        glm::mat4 rotMat = glm::rotate(glm::mat4(1.0f), glm::radians(pitch), glm::vec3(0.0f, -1.0f, 0.0f));
-        rotMat = glm::rotate(rotMat, glm::radians(yaw), glm::vec3(-1.0f, 0.0f, 0.0f));
-        camera_front = glm::normalize(rotMat * glm::vec4(0.0f, 0.0f, -1.0f, 0.0f));
+        glm::mat4 rotMat = glm::rotate(glm::identity<glm::mat4>(), pitch, glm::vec3(0.0f, -1.0f, 0.0f));
+        rotMat = rotMat * glm::rotate(glm::identity<glm::mat4>(), yaw, glm::vec3(-1.0f, 0.0f, 0.0f));
+        camera_front = glm::normalize(rotMat * glm::vec4(0.0f, 0.0f, -1.0f, -0.0f));
+        camera_up = glm::normalize(rotMat * glm::vec4(world_up, 0.0f));
+
+        // camera_right = glm::rotate(glm::identity<glm::mat4>(), 0.5f * glm::pi<float>(), glm::vec3(0.0f, 1.0f, 0.0f)) * glm::vec4(camera_front);
+        // camera_up = glm::normalize(glm::cross(camera_right, camera_front));
         camera_right = glm::normalize(glm::cross(camera_front, world_up));
-        camera_up = glm::normalize(glm::cross(camera_right, camera_front));
     }
 public:
 	Camera_3D(
             glm::vec3 position, float fov = glm::radians(60.0f), 
             float screen_width = WINDOW_WIDTH, float screen_height = WINDOW_HEIGHT, 
             float near_plane = 0.1, float far_plane = 4000.0f, 
-            glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f), float yaw = YAW, float pitch = PITCH
+            glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f), float yaw = 0.0f, float pitch = 0.0f
         ) 
         : camera_front(glm::vec3(0.0f, 0.0f, -1.0f)) {
         camera_front = glm::normalize(-position);
@@ -55,6 +59,10 @@ public:
         this->yaw = yaw;
         this->pitch = pitch;
         this->UpdateCameraVectors();
+
+        N3D_CORE_TRACE("front : {} {} {}", camera_front.x, camera_front.y, camera_front.z);
+        N3D_CORE_TRACE("right : {} {} {}", camera_right.x, camera_right.y, camera_right.z);
+        N3D_CORE_TRACE("up : {} {} {}", camera_up.x, camera_up.y, camera_up.z);
     }
     void SetPosition(glm::vec3 pos) {
         this->camera_pos = pos;
@@ -66,10 +74,6 @@ public:
 	void SetAngles(float pitch, float yaw) {
         this->pitch = pitch;
         this->yaw = yaw;
-        if (this->pitch >=  180.0f) this->pitch -= 360.0f;
-        if (this->pitch <= -180.0f) this->pitch += 360.0f;
-        if (this->yaw >=  180.0f) this->yaw -= 360.0f;
-        if (this->yaw <= -180.0f) this->yaw += 360.0f;
         this->UpdateCameraVectors();
     }
 
@@ -96,19 +100,25 @@ public:
     }
 
 	glm::mat4 GetViewMatrix() {
-        // UpdateCameraVectors();
+        UpdateCameraVectors();
         // if (glm::dot(camera_up, glm::vec3(0.0f, 1.0f, 0.0f)) > 0.0f) {
         //     N3D_CORE_TRACE("{}", -1);
         //     return glm::lookAt(camera_pos, glm::vec3(0.0f), -camera_up);
         // }
         // N3D_CORE_TRACE("{}", 1);
-	    return glm::lookAt(camera_pos, glm::vec3(0.0f), world_up);
-	    // return glm::lookAt(camera_pos, camera_pos + camera_front, camera_up);
+	    // return glm::lookAt(camera_pos, glm::vec3(0.0f), world_up);
+	    return glm::lookAt(camera_pos, camera_pos + camera_front, world_up);
+
     }
 
-    glm::vec3 GetCameraUp() {
-        return camera_up;
+    void SetFront(glm::vec3 front) {
+        this->camera_front = front;
+        UpdateCameraVectors();
     }
+
+    glm::vec3 GetCameraUp() { return camera_up; }
+    glm::vec3 GetCameraFront() { return camera_front; }
+    glm::vec3 GetCameraRight() { return camera_right; }
 
     void MoveUp(float distance) {
         camera_pos += camera_up * distance;
@@ -127,12 +137,11 @@ public:
     }
 
     void MoveForward(float distance) {
-        camera_pos += glm::normalize(camera_pos) * distance;
-        // camera_pos += camera_front * distance;
+        camera_pos += camera_front * distance;
     }
 
     void MoveBackward(float distance) {
-        camera_pos += camera_front * distance;
+        camera_pos -= camera_front * distance;
     }
 
     void FillShader(ShaderProgram& prg) override {

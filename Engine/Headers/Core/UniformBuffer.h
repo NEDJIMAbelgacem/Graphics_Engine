@@ -34,8 +34,8 @@ public:
         // glCall(glBindBufferBase(GL_UNIFORM_BUFFER, 2, id));
         glCall(glUniformBlockBinding(prg.GetId(), index, binding_point));
     }
-
-	void Unbind() {
+    
+    void Unbind() {
         glCall(glBindBuffer(GL_UNIFORM_BUFFER, 0));
     }
 

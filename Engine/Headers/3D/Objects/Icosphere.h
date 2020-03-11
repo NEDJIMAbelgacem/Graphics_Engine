@@ -115,9 +115,9 @@ public:
     void Render() override {
         vao->Bind();
         ibo->Bind();
-        // glCall(glPolygonMode(GL_FRONT_AND_BACK, GL_LINE));
+        glCall(glPolygonMode(GL_FRONT_AND_BACK, GL_LINE));
         glCall(glDrawElements(GL_TRIANGLES, ibo->GetCount(), GL_UNSIGNED_INT, 0));
-        // glCall(glPolygonMode(GL_FRONT_AND_BACK, GL_FILL));
+        glCall(glPolygonMode(GL_FRONT_AND_BACK, GL_FILL));
         vao->Unbind(); 
     }
 };

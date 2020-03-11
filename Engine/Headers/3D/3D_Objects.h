@@ -8,3 +8,5 @@
 #include "Objects/SkyBox.h"
 #include "Objects/Text.h"
 #include "Objects/Text_3D.h"
+#include "Objects/Plane.h"
+#include "Objects/Line.h"
